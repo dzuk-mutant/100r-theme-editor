@@ -3,18 +3,16 @@ module Main exposing (main)
 import Browser
 import Color
 import Color.Convert
-import ColorHelper exposing (convColor)
-import Css exposing (auto, alignItems, backgroundColor, borderRadius, center, column, displayFlex, flex, flexDirection, height, justifyContent, margin2, none, padding, row, vh, vw, width)
+import Css exposing (alignItems, center, column, displayFlex, flexDirection, height, vh, vw, width)
 import File exposing (File)
 import File.Select as Select
 import Html
-import Html.Styled exposing (Attribute, Html, button, div, text)
+import Html.Styled exposing (Attribute, button, div, text)
 import Html.Styled.Attributes exposing (css)
 import Html.Styled.Events exposing (..)
 import HRTheme exposing (HRTheme)
 import Json.Decode as JD
 import Task
-import Rpx exposing (rpx, blc)
 import PreviewArea
 import Xml.Decode as XD
 import ViewHelper
@@ -137,29 +135,25 @@ view model =
 
 mainView : Model -> Html.Html Msg
 mainView model =
-
-    let
-        theme = model.theme
-    in
-        Html.Styled.toUnstyled
-            ( div 
-                [ css
-                    [ displayFlex
-                    , flexDirection column
-                    , alignItems center
-                    , width (vw 100)
-                    , height (vh 100)
-                    ]
-                , hijackOn "dragenter" (JD.succeed DragEnter)
-                , hijackOn "dragover" (JD.succeed DragEnter)
-                , hijackOn "dragleave" (JD.succeed DragLeave)
-                , hijackOn "drop" dropDecoder
+    Html.Styled.toUnstyled
+        ( div 
+            [ css
+                [ displayFlex
+                , flexDirection column
+                , alignItems center
+                , width (vw 100)
+                , height (vh 100)
                 ]
-                [ ViewHelper.globalStyles model.theme
-                , button [ onClick Pick ] [ text "Upload Theme" ]
-                , PreviewArea.view model.theme
-                ]
-            )
+            , hijackOn "dragenter" (JD.succeed DragEnter)
+            , hijackOn "dragover" (JD.succeed DragEnter)
+            , hijackOn "dragleave" (JD.succeed DragLeave)
+            , hijackOn "drop" dropDecoder
+            ]
+            [ ViewHelper.globalStyles model.theme
+            , button [ onClick Pick ] [ text "Upload Theme" ]
+            , PreviewArea.view model.theme
+            ]
+        )
         
 
 

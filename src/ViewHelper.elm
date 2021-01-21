@@ -7,6 +7,9 @@ import Html.Styled exposing (Html)
 import Rpx exposing (rpx)
 import ColorHelper exposing (convColor)
 
+
+{-| Directly copied from Parastat's UI framework. weeeeee
+-}
 globalStyles : HRTheme -> Html msg
 globalStyles theme =
     global
