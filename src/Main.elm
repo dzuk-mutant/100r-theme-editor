@@ -3,7 +3,7 @@ module Main exposing (main)
 import Browser
 import Color
 import Color.Convert
-import ColorHelper exposing (convColor)
+import ColorHelper exposing (convColor, getCurrentColor, editColorValue)
 import Css exposing (alignItems, backgroundColor, center, column, displayFlex, flexDirection, height, marginBottom, marginTop, pct, vh, vw, width)
 import File exposing (File)
 import File.Select as Select
@@ -14,7 +14,7 @@ import Html.Styled.Events exposing (..)
 import HRTheme exposing (HRTheme)
 import Json.Decode as JD
 import Task
-import Model exposing (Model, SelectedColor(..), ColorEditMode(..))
+import Model exposing (Model, SelectedColor(..), ColorMode(..), EditType(..))
 import Section.File
 import Section.Preview
 import Section.Mixer
@@ -86,8 +86,8 @@ type Msg
   | ThemeLoaded String
 
   | SelectedColorChanged SelectedColor
-  | ColorEditModeChanged ColorEditMode
-  | ColorChanged Color.Color
+  | ColorModeChanged ColorMode 
+  | ColorChanged EditType String
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -138,13 +138,15 @@ update msg model =
         , Cmd.none
         )
     
-    ColorEditModeChanged cem ->
+    ColorModeChanged cem ->
         ( { model | colorEditMode = cem }
         , Cmd.none
         )
 
-    ColorChanged color ->
+    ColorChanged editType val ->
         let
+            newColor = editColorValue val editType model
+
             colorChangeFunc c t =
                 case model.selectedColor of
                     Background -> { t | background = c }
@@ -158,7 +160,7 @@ update msg model =
                     BInv -> { t | bInv = c }
 
         in
-            ({ model | theme = colorChangeFunc color model.theme }
+            ({ model | theme = colorChangeFunc newColor model.theme }
             , Cmd.none
             )
 
@@ -215,7 +217,7 @@ mainView model =
                 , divider model.theme
                 , Section.Preview.view model SelectedColorChanged
                 , divider model.theme
-                , Section.Mixer.view model ColorEditModeChanged ColorChanged
+                , Section.Mixer.view model ColorModeChanged ColorChanged
                 ]
             ]
         )

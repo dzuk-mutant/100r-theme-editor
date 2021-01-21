@@ -1,11 +1,15 @@
-module Model exposing (Model, SelectedColor(..), ColorEditMode(..))
+module Model exposing (Model
+                      , SelectedColor(..)
+                      , ColorMode(..)
+                      , EditType(..)
+                      )
 
 import HRTheme exposing (HRTheme)
 
 type alias Model =
     { theme : HRTheme
     , selectedColor : SelectedColor
-    , colorEditMode : ColorEditMode
+    , colorEditMode : ColorMode
     }
 
 type SelectedColor
@@ -19,6 +23,14 @@ type SelectedColor
     | BLow
     | BInv
 
-type ColorEditMode
+type ColorMode
     = HSL
     | RGB
+
+type EditType
+    = Red
+    | Green
+    | Blue
+    | Hue
+    | Saturation
+    | Lightness

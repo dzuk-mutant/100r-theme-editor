@@ -2,20 +2,22 @@ module Section.Mixer exposing (view)
 
 import Color
 import Color.Convert exposing (colorToHex)
-import ColorHelper exposing (convColor)
-import Css exposing (backgroundColor, border, borderBox, borderColor, borderWidth, boxSizing, color, displayFlex, fontWeight, height, int, left, textAlign, minWidth, padding, width, unset, zero)
+import ColorHelper exposing (convColor, getColorValue, getCurrentColor)
+import Css exposing (backgroundColor, border, borderBox, borderColor, borderWidth, boxSizing, color, column, displayFlex, fontWeight, flexDirection, height, int, left, textAlign, marginTop, minWidth, padding, width, unset, zero)
 import Html.Styled as Html exposing (Html, button, div, input, label)
-import Html.Styled.Attributes exposing (class, css, type_)
-import Html.Styled.Events exposing (onClick)
-import Model exposing (Model, SelectedColor(..), ColorEditMode(..))
+import Html.Styled.Attributes as Attr exposing (class, css, type_, value)
+import Html.Styled.Events exposing (onClick, onInput)
+import Model exposing (Model, SelectedColor(..), ColorMode(..), EditType(..))
 import Rpx exposing (blc, rpx)
 import Section.Dimen exposing (leftBlocking, rightBlocking)
-import Color.Convert exposing (colorToHex)
 import ViewHelper
 
 
-view : Model -> (ColorEditMode -> msg) -> (Color.Color -> msg) -> Html msg
-view model colorModeMsg colorMsg =
+type alias ColorEditMsg msg = EditType -> String -> msg
+type alias ColorModeMsg msg = ColorMode -> msg
+
+view : Model ->  ColorModeMsg msg -> ColorEditMsg msg -> Html msg
+view model colorModeMsg colorEditMsg =
     div
         [ class "mixer"
         , css   
@@ -33,9 +35,25 @@ view model colorModeMsg colorMsg =
                 ]
             ]
             [ div
-                []
-                [ colorModeButton model colorModeMsg HSL "HSL"
-                , colorModeButton model colorModeMsg RGB "RGB"
+                [ class "mixer-area"
+                , css
+                    [ displayFlex
+                    , flexDirection column
+                    ]
+                ]
+                [ div
+                    [ class "colorMode"
+                    ]
+                    [ colorModeButton model colorModeMsg HSL "HSL"
+                    , colorModeButton model colorModeMsg RGB "RGB"
+                    ]
+                , div
+                    [ class "sliderArea"
+                    ]
+                    [ case model.colorEditMode of
+                        HSL -> hslSliders model colorEditMsg
+                        RGB -> rgbSliders model colorEditMsg
+                    ]
                 ]
             ]
         ]
@@ -57,17 +75,7 @@ colorArea model =
                 BLow -> "b_low"
                 BInv -> "b_inv"
         
-        colorPrev =
-            case model.selectedColor of
-                Background -> theme.background
-                FHigh -> theme.fHigh
-                FMed -> theme.fMed
-                FLow -> theme.fLow
-                FInv -> theme.fInv
-                BHigh -> theme.bHigh
-                BMed -> theme.bMed
-                BLow -> theme.bLow
-                BInv -> theme.bInv
+        colorPrev = getCurrentColor model
     in
         div
             [ class "mixer"
@@ -104,7 +112,7 @@ colorArea model =
                 []
             ]
 
-colorModeButton : Model -> (ColorEditMode -> msg) -> ColorEditMode -> String -> Html msg
+colorModeButton : Model -> ColorModeMsg msg -> ColorMode -> String -> Html msg
 colorModeButton model msg colorMode label =
     button
         [ css
@@ -139,18 +147,31 @@ colorModeButton model msg colorMode label =
         ]
         [ Html.text label ]
 
-hslSliders : Model -> (Color.Color -> msg) -> Html msg
-hslSliders model colorChangeMsg =
+
+rgbSliders : Model -> ColorEditMsg msg -> Html msg
+rgbSliders model colorEditMsg =
     div
         [
         ]
-        [ slider model colorChangeMsg
-        , slider model colorChangeMsg
-        , slider model colorChangeMsg
+        [ slider model colorEditMsg Red 0 255
+        , slider model colorEditMsg Green 0 255
+        , slider model colorEditMsg Blue 0 255
         ]
+
+
+hslSliders : Model -> ColorEditMsg msg -> Html msg
+hslSliders model colorEditMsg =
+    div
+        [
+        ]
+        [ slider model colorEditMsg Hue 0 360
+        , slider model colorEditMsg Saturation 0 100
+        , slider model colorEditMsg Lightness 0 100
+        ]
+
     
-slider : Model -> (Color.Color -> msg) -> Html msg
-slider model colorChangeMsg =
+slider : Model -> ColorEditMsg msg -> EditType -> Int -> Int -> Html msg
+slider model colorEditMsg editType minVal maxVal =
     div
         []
         [ label
@@ -158,7 +179,16 @@ slider model colorChangeMsg =
             []
         , input
             [ type_ "range"
+            , Attr.min <| String.fromInt minVal
+            , Attr.max <| String.fromInt maxVal
+            , onInput (colorEditMsg editType)
+            , value <| getColorValue model editType
+            , css
+                [ height (blc 4)
+                , marginTop (blc 1)
+                ]
             ]
             []
         ]
         
+
