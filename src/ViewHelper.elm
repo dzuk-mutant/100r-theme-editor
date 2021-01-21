@@ -1,6 +1,6 @@
-module ViewHelper exposing (globalStyles)
+module ViewHelper exposing (globalStyles, buttonStyles, defaultFonts)
 
-import Css exposing (backgroundColor, boxSizing, border, borderBox, color, displayFlex, fontSize, fontWeight, int, lineHeight, margin, num, padding, opacity, property, textRendering, optimizeLegibility, zero)
+import Css exposing (Style, backgroundColor, boxSizing, border, borderBox, color, cursor, displayFlex, focus, fontSize, fontFamilies, fontWeight, int, lineHeight, margin, none, num, padding, opacity, outline, property, pointer, pseudoClass, textRendering, optimizeLegibility, zero)
 import Css.Global exposing (global, selector, typeSelector)
 import HRTheme exposing (HRTheme)
 import Html.Styled exposing (Html)
@@ -21,8 +21,7 @@ globalStyles theme =
         , typeSelector "body" -- base properties
             [ displayFlex
 
-            , fontSize (rpx 14)
-            , fontWeight (int 500)
+            , defaultFonts
             , color <| convColor theme.fHigh
             , lineHeight (num 1.5)
             , backgroundColor <| convColor theme.background
@@ -57,4 +56,24 @@ globalStyles theme =
         -- on things that are focused on. This basically makes
         -- them go away.
         , selector "*::-moz-focus-inner" [ border zero ]
+        ]
+
+{-| Also copied from parastat! :P
+-}
+buttonStyles : Style
+buttonStyles =
+    Css.batch
+        [ cursor pointer -- once you start messing with button styles, it becomes necessary to do this.
+        , padding zero
+        , margin zero
+        , focus [ outline none ]
+        , pseudoClass "-moz-focus-inner" [ border zero ]
+        ]
+
+defaultFonts : Style
+defaultFonts =
+    Css.batch
+        [ fontFamilies ["JetBrains Mono", "Cousine", "monospaced"]
+        , fontSize (rpx 16)
+        , fontWeight (int 700)
         ]

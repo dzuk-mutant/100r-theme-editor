@@ -12,3 +12,4 @@ convColor colorData =
     colorData
     |> Color.Convert.colorToHex
     |> Css.hex
+

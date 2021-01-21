@@ -3,7 +3,8 @@ module Main exposing (main)
 import Browser
 import Color
 import Color.Convert
-import Css exposing (alignItems, center, column, displayFlex, flexDirection, height, vh, vw, width)
+import ColorHelper exposing (convColor)
+import Css exposing (alignItems, backgroundColor, center, column, displayFlex, flexDirection, height, marginBottom, marginTop, pct, vh, vw, width)
 import File exposing (File)
 import File.Select as Select
 import Html
@@ -13,9 +14,15 @@ import Html.Styled.Events exposing (..)
 import HRTheme exposing (HRTheme)
 import Json.Decode as JD
 import Task
-import PreviewArea
+import Model exposing (Model, SelectedColor(..), ColorEditMode(..))
+import Section.File
+import Section.Preview
+import Section.Mixer
 import Xml.Decode as XD
 import ViewHelper
+import Rpx exposing (rpx, blc)
+
+
 
 -- MAIN
 
@@ -27,13 +34,6 @@ main = Browser.document
     , subscriptions = subscriptions
     }
 
-
--- MODEL
-
-
-type alias Model =
-  { theme : HRTheme
-  }
 
 
 
@@ -49,21 +49,24 @@ defaultTheme =
             |> Maybe.withDefault Color.black
 
     in
-        { background = hexConv "E0B1CB"
-        , fHigh = hexConv "231942"
-        , fMed = hexConv "5E548E"
-        , fLow = hexConv "BE95C4"
-        , fInv = hexConv "E0B1CB"
-        , bHigh = hexConv "FFFFFF"
-        , bMed = hexConv "5E548E"
-        , bLow = hexConv "BE95C4"
-        , bInv = hexConv "9F86C0"
+        -- noir theme
+        { background = hexConv "222222"
+        , fHigh = hexConv "ffffff"
+        , fMed = hexConv "cccccc"
+        , fLow = hexConv "999999"
+        , fInv = hexConv "ffffff"
+        , bHigh = hexConv "888888"
+        , bMed = hexConv "666666"
+        , bLow = hexConv "444444"
+        , bInv = hexConv "000000"
         }
 
 
 init : () -> (Model, Cmd Msg)
 init _ =
     (   { theme = defaultTheme
+        , selectedColor = Background
+        , colorEditMode = HSL
         }
     , Cmd.none
     )
@@ -75,34 +78,48 @@ init _ =
 
 type Msg
   = Pick
+  | Export
+
   | DragEnter
   | DragLeave
   | GotFiles File (List File)
   | ThemeLoaded String
+
+  | SelectedColorChanged SelectedColor
+  | ColorEditModeChanged ColorEditMode
+  | ColorChanged Color.Color
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     Pick ->
-      ( model
-      , Select.files ["image/svg+xml"] GotFiles
-      )
+        ( model
+        , Select.files ["image/svg+xml"] GotFiles
+        )
+
+    Export ->
+        ( model
+        , Cmd.none
+        )
 
     DragEnter ->
-      ( model
-      , Cmd.none
-      )
+        ( model
+        , Cmd.none
+        )
 
     DragLeave ->
-      ( model
-      , Cmd.none
-      )
+        ( model
+        , Cmd.none
+        )
+
     GotFiles file _ ->
-      ( model
-      , Task.perform ThemeLoaded (File.toString file)
-      )
+        ( model
+        , Task.perform ThemeLoaded (File.toString file)
+        )
     
+   
+
     ThemeLoaded fileStr ->
         let
             newThemeAttempt = XD.run HRTheme.decoder fileStr
@@ -115,7 +132,35 @@ update msg model =
             ( { model | theme = newTheme }
             , Cmd.none
             )
+
+    SelectedColorChanged sc ->
+        ( { model | selectedColor = sc }
+        , Cmd.none
+        )
     
+    ColorEditModeChanged cem ->
+        ( { model | colorEditMode = cem }
+        , Cmd.none
+        )
+
+    ColorChanged color ->
+        let
+            colorChangeFunc c t =
+                case model.selectedColor of
+                    Background -> { t | background = c }
+                    FHigh -> { t | fHigh = c }
+                    FMed -> { t | fMed = c }
+                    FLow -> { t | fLow = c }
+                    FInv -> { t | fInv = c }
+                    BHigh -> { t | bHigh = c }
+                    BMed -> { t | bMed = c }
+                    BLow -> { t | bLow = c }
+                    BInv -> { t | bInv = c }
+
+        in
+            ({ model | theme = colorChangeFunc color model.theme }
+            , Cmd.none
+            )
 
 
 
@@ -132,6 +177,21 @@ view model =
     { title = "Hundred Rabbits theme editor"
     , body = [ mainView model ]
     }
+
+
+divider : HRTheme -> Html.Styled.Html Msg
+divider theme =
+    div
+        [ Html.Styled.Attributes.class "divider"
+        , css
+            [ width (pct 100)
+            , height (rpx 2)
+            , marginTop <| Rpx.subtract (blc 4) (rpx 1)
+            , marginBottom <| Rpx.subtract (blc 4) (rpx 1)
+            , backgroundColor (convColor theme.bMed)
+            ]
+        ]
+        []
 
 mainView : Model -> Html.Html Msg
 mainView model =
@@ -150,8 +210,13 @@ mainView model =
             , hijackOn "drop" dropDecoder
             ]
             [ ViewHelper.globalStyles model.theme
-            , button [ onClick Pick ] [ text "Upload Theme" ]
-            , PreviewArea.view model.theme
+            , div []
+                [ Section.File.view model Pick Export
+                , divider model.theme
+                , Section.Preview.view model SelectedColorChanged
+                , divider model.theme
+                , Section.Mixer.view model ColorEditModeChanged ColorChanged
+                ]
             ]
         )
         
