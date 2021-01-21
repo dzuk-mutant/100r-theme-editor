@@ -8,7 +8,7 @@
         "direct": {
             "avh4/elm-color": "1.0.0",
             "dzuk-mutant/elm-responsive-pixels": "1.1.0",
-            "dzuk-mutant/hundred-rabbits-themes-elm": "1.1.0",
+            "dzuk-mutant/hundred-rabbits-themes-elm": "1.1.1",
             "elm/browser": "1.0.2",
             "elm/core": "1.0.5",
             "elm/file": "1.0.5",
