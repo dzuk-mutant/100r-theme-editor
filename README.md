@@ -1,4 +1,4 @@
-# 100r theme editor
+# Hundred Rabbits theme editor
 
 Create and edit [Hundred Rabbits themes](https://github.com/hundredrabbits/Themes) using this simple web app.
 
@@ -69,4 +69,5 @@ the app will work offline once built.
 
 ## License
 
-This software is licensed CNPL v5.
+- This software is licensed CNPL v5.
+- JetBrains Mono is licensed OFL 1.1.

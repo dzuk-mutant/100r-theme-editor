@@ -57,6 +57,14 @@ globalStyles theme =
         -- on things that are focused on. This basically makes
         -- them go away.
         , selector "*::-moz-focus-inner" [ border zero ]
+
+        , selector "@font-face"
+                [ property "font-family" "JetBrains Mono"
+                , property "src" "url('JetBrainsMono-Medium.woff2') format('woff2'), url('_fonts/Manrope-Medium.woff') format('woff');"
+                , property "font-weight" "600"
+                , property "font-style" "normal"
+                ]
+
         ]
 
 {-| Also copied from parastat! :P
@@ -74,7 +82,7 @@ buttonStyles =
 defaultFonts : Style
 defaultFonts =
     Css.batch
-        [ fontFamilies ["JetBrains Mono", "Cousine", "monospaced"]
+        [ fontFamilies ["JetBrains Mono", "Cousine", "Cascadia Code", "Courier", "monospace"]
         , fontSize (rpx 16)
-        , fontWeight (int 700)
+        , fontWeight (int 600)
         ]
