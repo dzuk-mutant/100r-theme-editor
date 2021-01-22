@@ -26,3 +26,8 @@ Building the web app involves the `make all` command.
 
 An internet connection is required for the initial build, but
 the app will work offline once built.
+
+
+## License
+
+This software is licensed CNPL v5.

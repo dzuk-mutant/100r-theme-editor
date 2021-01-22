@@ -1,8 +1,14 @@
-module ColorHelper exposing (convColor, getCurrentColor, getColorValue, editColorValue)
+module Helper exposing ( convColor
+                            , getCurrentColor
+                            , changeCurrentColor
+                            , getColorValue
+                            , editColorValue
+                            )
 
 import Color exposing (Color)
 import Color.Convert
 import Css
+import HRTheme exposing (HRTheme)
 import Model exposing (Model, SelectedColor(..), EditType(..))
 
 {-| Converts avh4's elm-color
@@ -29,6 +35,28 @@ getCurrentColor model =
         BMed -> model.theme.bMed
         BLow -> model.theme.bLow
         BInv -> model.theme.bInv
+
+
+{-| Takes a colour and applies it to the current
+selected colour in the theme and returns the new theme.
+-}
+changeCurrentColor : Color.Color -> Model -> HRTheme
+changeCurrentColor color model =
+    let
+        c = color
+        t = model.theme
+    in
+        case model.selectedColor of
+            Background -> { t | background = c }
+            FHigh -> { t | fHigh = c }
+            FMed -> { t | fMed = c }
+            FLow -> { t | fLow = c }
+            FInv -> { t | fInv = c }
+            BHigh -> { t | bHigh = c }
+            BMed -> { t | bMed = c }
+            BLow -> { t | bLow = c }
+            BInv -> { t | bInv = c }
+
 
 
 {-| Gets a specific value of the current colour with an
@@ -92,3 +120,6 @@ editColorValue channelString editType model =
         |> toFloat
         |> prepareChannel
         |> packChannel
+
+
+        

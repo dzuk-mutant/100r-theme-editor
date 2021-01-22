@@ -2,7 +2,7 @@ module Section.Preview exposing (view)
 
 import Css exposing (alignItems, backgroundColor, border, borderBox, borderRadius, boxSizing, center, color, column, displayFlex, flex, flexDirection, fontWeight, height, int, left, minWidth, none, padding, row, textAlign, unset, width, zero)
 import Color exposing (Color)
-import ColorHelper exposing (convColor)
+import Helper exposing (convColor)
 import Html.Styled as Html exposing (Html, button, div)
 import Html.Styled.Attributes exposing (css, class)
 import Html.Styled.Events exposing (onClick)

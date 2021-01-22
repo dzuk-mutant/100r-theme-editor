@@ -2,10 +2,11 @@ module ViewHelper exposing (globalStyles, buttonStyles, defaultFonts)
 
 import Css exposing (Style, backgroundColor, boxSizing, border, borderBox, color, cursor, displayFlex, focus, fontSize, fontFamilies, fontWeight, int, lineHeight, margin, none, num, padding, opacity, outline, property, pointer, pseudoClass, textRendering, optimizeLegibility, zero)
 import Css.Global exposing (global, selector, typeSelector)
+import Helper exposing (convColor)
 import HRTheme exposing (HRTheme)
 import Html.Styled exposing (Html)
 import Rpx exposing (rpx)
-import ColorHelper exposing (convColor)
+
 
 
 {-| Directly copied from Parastat's UI framework. weeeeee

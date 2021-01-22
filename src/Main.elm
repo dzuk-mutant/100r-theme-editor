@@ -3,10 +3,10 @@ module Main exposing (main)
 import Browser
 import Color
 import Color.Convert
-import ColorHelper exposing (convColor, getCurrentColor, editColorValue)
 import Css exposing (alignItems, backgroundColor, center, column, displayFlex, flexDirection, height, marginBottom, marginTop, pct, vh, vw, width)
 import File exposing (File)
 import File.Select as Select
+import Helper exposing (convColor, getCurrentColor, editColorValue)
 import Html
 import Html.Styled exposing (Attribute, button, div, text)
 import Html.Styled.Attributes exposing (css)
@@ -146,21 +146,8 @@ update msg model =
     ColorChanged editType val ->
         let
             newColor = editColorValue val editType model
-
-            colorChangeFunc c t =
-                case model.selectedColor of
-                    Background -> { t | background = c }
-                    FHigh -> { t | fHigh = c }
-                    FMed -> { t | fMed = c }
-                    FLow -> { t | fLow = c }
-                    FInv -> { t | fInv = c }
-                    BHigh -> { t | bHigh = c }
-                    BMed -> { t | bMed = c }
-                    BLow -> { t | bLow = c }
-                    BInv -> { t | bInv = c }
-
         in
-            ({ model | theme = colorChangeFunc newColor model.theme }
+            ({ model | theme = Helper.changeCurrentColor newColor model }
             , Cmd.none
             )
 
