@@ -1,6 +1,6 @@
 # 100r theme editor
 
-Create and edit 100r themes using this simple web app.
+Create and edit [Hundred Rabbits themes](https://github.com/hundredrabbits/Themes) using this simple web app.
 
 
 ## Instructions
@@ -9,16 +9,26 @@ Create and edit 100r themes using this simple web app.
 to view and edit them.
 - Click on the different color names in the middle section to edit them
 with the selection below.
+- Use the color mode tabs and sliders at the bottom to adjust the selected color.
 - All changes are immediate, and you can see the accessibility
 score of your theme in real time.
-- Click the export button to save your theme.
+- Click the export button to download your theme.
 
+### Known bugs
+
+The HSL sliders don't really work as you would expect right now, this is for a specific known reason that I would like to address soon.
+
+If you want to use the HSL sliders right now, keep in mind that the Hue slider will not function properly if the saturation is at the bottom or the lightness slider is close to it's maximum or minimum. Also the Hue slider currently has a tendency to wrap around itself if you whack it right to the end.
+
+---
 
 ### How accessibility scores work
 
-The accessibility ratings here are different to Hundred Rabbits' own theme benchmark.
+The accessibility ratings here are different to Hundred Rabbits' own [theme benchmark](https://hundredrabbits.github.io/Themes/).
 
-The scores next to each combination in the grid is the WCAG contrast ratio. (It's a number that's a ratio against 1, so '15.9' is 15.9:1. The minimum is 1 and the max is 21.)
+The scores next to each combination in the grid is the WCAG contrast ratio.
+
+(It's a number that's a ratio against 1, so '15.9' is 15.9:1. The minimum is 1 and the max is 21.)
 
 These scores also have grades attached to them, these are the thresholds:
 
