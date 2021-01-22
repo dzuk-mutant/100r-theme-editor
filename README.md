@@ -11,13 +11,14 @@ to view and edit them.
 with the selection below.
 - All changes are immediate, and you can see the accessibility
 score of your theme in real time.
-- Drag the theme picture on the top section out to save your theme
-(or click the export button).
+- Click the export button to save your theme.
 
 
 ### How accessibility scores work
 
-The scores next to each combination in the grid is the contrast ratio. It's a number that's a ratio against 1, so '15.9' is 15.9:1. The minimum is 1 and the max is 21.
+The accessibility ratings here are different to Hundred Rabbits' own theme benchmark.
+
+The scores next to each combination in the grid is the WCAG contrast ratio. (It's a number that's a ratio against 1, so '15.9' is 15.9:1. The minimum is 1 and the max is 21.)
 
 These scores also have grades attached to them, these are the thresholds:
 

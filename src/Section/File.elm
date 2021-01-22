@@ -2,6 +2,7 @@ module Section.File exposing (view)
 
 import Css exposing (..)
 import Color.Accessibility exposing (contrastRatio)
+import FilePrev exposing (svgFilePreview)
 import Model exposing (Model)
 import Helper exposing (convColor)
 import HRTheme exposing (HRTheme)
@@ -18,6 +19,7 @@ view model importMsg exportMsg =
             , justifyContent spaceBetween
             ]
         ]
+        -------------- SCORE
         [ div [ class "score" ]
             [ div [ css [ color (convColor model.theme.fMed)]]
                 [ Html.text "theme score:"
@@ -27,8 +29,11 @@ view model importMsg exportMsg =
                 , span [] [ Html.text <| " [" ++ minAccGrade model.theme ++ "]" ]
                 ]
             ]
+        -------------- FILE PREVIEW
         , div [ class "file-prev" ]
-            []
+            [ svgFilePreview model.theme ]
+
+        -------------- BUTTONS
         , div [ class "buttons" ]
             [ button [ onClick importMsg ] [ text "import" ]
             , button [ onClick exportMsg ] [ text "export" ]
