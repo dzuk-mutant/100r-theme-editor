@@ -1,7 +1,8 @@
 module Section.Preview exposing (view)
 
-import Css exposing (alignItems, backgroundColor, border, borderBox, borderRadius, boxSizing, center, color, column, displayFlex, flex, flexDirection, fontWeight, height, int, left, minWidth, none, padding, row, textAlign, unset, width, zero)
+import Css exposing (alignItems, backgroundColor, border, borderBox, borderRadius, boxSizing, center, color, column, displayFlex, flex, flexDirection, height, left, marginLeft, minWidth, none, padding, row, textAlign, unset, width, zero)
 import Color exposing (Color)
+import Color.Accessibility exposing (contrastRatio)
 import Helper exposing (convColor)
 import Html.Styled as Html exposing (Html, button, div)
 import Html.Styled.Attributes exposing (css, class)
@@ -11,6 +12,7 @@ import Model exposing (Model, SelectedColor(..))
 import Rpx exposing (blc)
 import Section.Dimen exposing (leftBlocking, rightBlocking)
 import ViewHelper exposing (buttonStyles)
+import Html.Styled exposing (span)
 
 
 
@@ -77,7 +79,7 @@ view model selectMsg =
 
 
 
-
+cellWidth = (blc 18)
 
 
 smallerBlocking : List (Html msg) -> Html msg
@@ -120,25 +122,13 @@ blankCell : List (Html msg) -> Html msg
 blankCell content =
     div 
         [ css -- spacing area
-            [ minWidth (blc 12)
+            [ minWidth cellWidth
             , height (blc 3)
             , padding (blc 1)
             ]
         ]
         content
 
-
-previewCell : Color -> List (Html msg) -> Html msg
-previewCell bg content =
-    div 
-        [ css -- spacing area
-            [ minWidth (blc 12)
-            , height (blc 3)
-            , padding (blc 1)
-            , backgroundColor (convColor bg)
-            ]
-        ]
-        content
 
 
 paletteButton : Model -> String -> (SelectedColor -> msg) -> SelectedColor  -> Html msg
@@ -147,7 +137,7 @@ paletteButton model label msg thisColor =
         [ css
             [ buttonStyles
 
-            , minWidth (blc 14)
+            , minWidth cellWidth
             , height (blc 5)
             , padding (blc 1)
 
@@ -201,17 +191,55 @@ buttonRow content =
 
 paletteCircle : Color -> Color -> Html msg
 paletteCircle fg bg =
-    previewCell bg
-        [ div  -- circle
-            [ css 
-                [ width (blc 3)
+    let
+        accScore = contrastRatio fg bg
+
+        accScorePresent = Helper.getWCAGScoreString accScore
+
+        accScoreGrade =
+            if accScore < 3 then
+                "X"
+            else if accScore >= 3 && accScore < 4.5 then
+                "A"
+            else if accScore >= 4.5 && accScore < 7 then
+                "AA"
+            else -- if accScore >= 7 then
+                "AAA"
+    in
+        div
+            [ css
+                [ displayFlex
+                , flexDirection row
+                , minWidth (blc 18)
                 , height (blc 3)
-                , backgroundColor (convColor fg)
-                , borderRadius (blc 2)
+                , padding (blc 1)
+                , backgroundColor (convColor bg)
                 ]
             ]
-            []
-        ]
+            [ div  -- circle
+                [ css 
+                    [ width (blc 3)
+                    , height (blc 3)
+                    , backgroundColor (convColor fg)
+                    , borderRadius (blc 2)
+                    ]
+                ]
+                []
+            , span -- accessibility score
+                [ css
+                    [ marginLeft (blc 1)
+                    , color (convColor fg)
+                    ]
+                ]
+                [ Html.text accScorePresent ]
+
+            , span -- accessibility grade
+                [ css
+                    [ marginLeft (blc 1)
+                    ]
+                ]
+                [ Html.text <| "[" ++ accScoreGrade ++ "]" ]
+            ]
 
 paletteRow : List (Html msg) -> Html msg
 paletteRow content =

@@ -1,9 +1,14 @@
 module Helper exposing ( convColor
-                            , getCurrentColor
-                            , changeCurrentColor
-                            , getColorValue
-                            , editColorValue
-                            )
+
+                        , getCurrentColor
+                        , changeCurrentColor
+
+                        , getColorValue
+                        , editColorValue
+
+                        , getWCAGScoreString
+                        , getWCAGGrade
+                        )
 
 import Color exposing (Color)
 import Color.Convert
@@ -122,4 +127,35 @@ editColorValue channelString editType model =
         |> packChannel
 
 
-        
+{-| Returns a presentable WCAG contrast score, showing only one decimal place.
+
+(Floats are fickle when presenting in web browsers.)
+-}
+getWCAGScoreString : Float -> String
+getWCAGScoreString accScore =
+    let
+        inted = accScore
+            |> (*) 10
+            |> truncate
+            |> String.fromInt
+    in
+        String.slice 0 -1 inted ++ "." ++ String.right 1 inted
+
+
+
+{-| Returns a grade consistent with WCAG 2.0 standards
+based on the contrast ratio given.
+
+(Apart from X, that's just something I came up with to
+denote those that don't pass minimum standards.)
+-}
+getWCAGGrade : Float -> String
+getWCAGGrade accScore =
+    if accScore < 3 then
+        "X"
+    else if accScore >= 3 && accScore < 4.5 then
+        "A"
+    else if accScore >= 4.5 && accScore < 7 then
+        "AA"
+    else -- if accScore >= 7 then
+        "AAA"

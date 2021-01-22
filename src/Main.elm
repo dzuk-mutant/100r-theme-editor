@@ -6,6 +6,7 @@ import Color.Convert
 import Css exposing (alignItems, backgroundColor, center, column, displayFlex, flexDirection, height, marginBottom, marginTop, pct, vh, vw, width)
 import File exposing (File)
 import File.Select as Select
+import File.Download as Download
 import Helper exposing (convColor, getCurrentColor, editColorValue)
 import Html
 import Html.Styled exposing (Attribute, button, div, text)
@@ -78,7 +79,7 @@ init _ =
 
 type Msg
   = Pick
-  | Export
+  | Export 
 
   | DragEnter
   | DragLeave
@@ -100,7 +101,7 @@ update msg model =
 
     Export ->
         ( model
-        , Cmd.none
+        , export model.theme
         )
 
     DragEnter ->
@@ -177,7 +178,7 @@ divider theme =
             , height (rpx 2)
             , marginTop <| Rpx.subtract (blc 4) (rpx 1)
             , marginBottom <| Rpx.subtract (blc 4) (rpx 1)
-            , backgroundColor (convColor theme.bMed)
+            , backgroundColor (convColor theme.bLow)
             ]
         ]
         []
@@ -210,6 +211,9 @@ mainView model =
         )
         
 
+export : HRTheme -> Cmd msg
+export theme =
+    Download.string "theme.svg" "image/svg+xml" (HRTheme.toXmlString theme)
 
 dropDecoder : JD.Decoder Msg
 dropDecoder =
