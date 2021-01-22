@@ -2,6 +2,7 @@
 
 Create and edit [Hundred Rabbits themes](https://github.com/hundredrabbits/Themes) using this simple web app.
 
+[Click here to use the editor.](https://dzuk-mutant.github.io/100r-theme-editor/)
 
 ## Instructions
 
@@ -20,7 +21,6 @@ The HSL sliders don't really work as you would expect right now, this is for a s
 
 If you want to use the HSL sliders right now, keep in mind that the Hue slider will not function properly if the saturation is at the bottom or the lightness slider is close to it's maximum or minimum. Also the Hue slider currently has a tendency to wrap around itself if you whack it right to the end.
 
----
 
 ### How accessibility scores work
 
