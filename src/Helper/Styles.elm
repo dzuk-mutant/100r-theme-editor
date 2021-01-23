@@ -79,6 +79,7 @@ buttonStyles =
         [ cursor pointer -- once you start messing with button styles, it becomes necessary to do this.
         , padding zero
         , margin zero
+        , border zero
         , focus [ outline none ]
         , pseudoClass "-moz-focus-inner" [ border zero ]
         ]

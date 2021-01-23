@@ -158,7 +158,6 @@ paletteButton model label msg thisColor =
             , height (blc 5)
             , padding (blc 1)
 
-            , border zero
             , Helper.Styles.defaultFonts
 
             , Css.batch (
