@@ -5,12 +5,17 @@ module Model exposing (Model
                       )
 
 import HRTheme exposing (HRTheme)
+import Tests exposing (Tests)
+
 
 type alias Model =
     { theme : HRTheme
     , selectedColor : SelectedColor
     , colorEditMode : ColorMode
+    , tests : Tests
     }
+
+
 
 type SelectedColor
     = Background

@@ -1,17 +1,16 @@
 module Section.Preview exposing (view)
 
-import Css exposing (alignItems, backgroundColor, border, borderBox, borderRadius, boxSizing, center, color, column, displayFlex, flex, flexDirection, height, left, marginLeft, minWidth, none, padding, row, textAlign, unset, width, zero)
+import Css exposing (..)
 import Color exposing (Color)
-import Color.Accessibility exposing (contrastRatio)
 import Helper.Color exposing (convColor)
 import Helper.Styles exposing (buttonStyles, cellWidth)
-import Html.Styled as Html exposing (Html, button, div)
+import Html.Styled as Html exposing (Html, button, div, span)
 import Html.Styled.Attributes exposing (css, class)
 import Html.Styled.Events exposing (onClick)
 import HRTheme exposing (HRTheme)
 import Model exposing (Model, SelectedColor(..))
 import Rpx exposing (blc)
-import Html.Styled exposing (span)
+import Tests exposing (getWCAGGrade, getWCAGScoreString, GradationTest(..), getGradationTests)
 
 
 
@@ -20,6 +19,7 @@ view : Model -> (SelectedColor -> msg) -> Html msg
 view model selectMsg =
     let
         theme = model.theme
+        tests = model.tests
     in
         div 
             [ css
@@ -35,14 +35,17 @@ view model selectMsg =
 
                 , div [ css [ height (blc 1) ]][] -- spacer
 
-                , paletteButton model "background" selectMsg Background
+                , paletteButton model "background" selectMsg Background ""
                 , paletteButton model "b_low" selectMsg BLow
+                    ( gradation [(BMedTooLow, "↑")] model )
                 , paletteButton model "b_med" selectMsg BMed
+                    ( gradation [(BMedTooLow, "↓"), (BHighTooLow, "↑")] model)
                 , paletteButton model "b_high" selectMsg BHigh
+                    ( gradation [(BHighTooLow, "↓")] model )
 
                 , div [ css [ height (blc 2) ] ][] -- spacer
 
-                , paletteButton model "b_inv" selectMsg BInv
+                , paletteButton model "b_inv" selectMsg BInv ""
                 ]
 
             , div [ css [ width (blc 1) ] ][] -- spacer
@@ -51,25 +54,49 @@ view model selectMsg =
             , largerBlocking
                 [ buttonRow
                     [ paletteButton model "f_high" selectMsg FHigh
+                        ( gradation [(FHighTooLow, "←")] model )
                     , paletteButton model "f_med" selectMsg FMed
+                        ( gradation [(FHighTooLow, "→"), (FMedTooLow, "←")] model)
                     , paletteButton model "f_low" selectMsg FLow
+                        ( gradation [(FMedTooLow, "→")] model )
+                    ]
+
+                , div [ css [ height (blc 1) ]][] -- spacer
+                
+                ,  paletteRow
+                    [ paletteCircle tests.contrastBgFHigh theme.background theme.fHigh
+                    , paletteCircle tests.contrastBgFMed theme.background theme.fMed
+                    , paletteCircle tests.contrastBgFLow theme.background theme.fLow
+                    ]
+                
+                ,  paletteRow
+                    [ paletteCircle tests.contrastBLowFHigh theme.bLow theme.fHigh
+                    , paletteCircle tests.contrastBLowFMed theme.bLow theme.fMed
+                    , paletteCircle tests.contrastBLowFLow theme.bLow theme.fLow
+                    ]
+                
+                ,  paletteRow
+                    [ paletteCircle tests.contrastBMedFHigh theme.bMed theme.fHigh
+                    , paletteCircle tests.contrastBMedFMed theme.bMed theme.fMed
+                    , paletteCircle tests.contrastBMedFLow theme.bMed theme.fLow
+                    ]
+
+                ,  paletteRow
+                    [ paletteCircle tests.contrastBHighFHigh theme.bHigh theme.fHigh
+                    , paletteCircle tests.contrastBHighFMed theme.bHigh theme.fMed
+                    , paletteCircle tests.contrastBHighFLow theme.bHigh theme.fLow
+                    ]
+
+                , div [ css [ height (blc 2) ]][] -- spacer
+
+                ,  paletteRow
+                    [ paletteCircle tests.contrastBInvFInv theme.bInv theme.fInv
                     ]
 
                 , div [ css [ height (blc 1) ]][] -- spacer
 
-                , colorSect theme.background theme
-                , colorSect theme.bLow theme
-                , colorSect theme.bMed theme
-                , colorSect theme.bHigh theme
-
-                , div [ css [ height (blc 2) ]][] -- spacer
-
-                , invSect theme
-
-                , div [ css [ height (blc 1) ]][] -- spacer
-
                 , buttonRow
-                    [ paletteButton model "f_inv" selectMsg FInv
+                    [ paletteButton model "f_inv" selectMsg FInv ""
                     ]
                 ]
 
@@ -97,6 +124,17 @@ gradeColor bgCol =
             Color.rgb255 255 255 255
         else
             Color.rgb255 0 0 0 
+
+
+
+gradation : List (GradationTest, String) -> Model -> String
+gradation results model =
+    let
+        gradationTestsMet = List.filter (\x -> getGradationTests model.tests == Tuple.first x) results
+    in
+        case List.head gradationTestsMet of
+            Nothing -> ""
+            Just h -> "[" ++ Tuple.second h ++ "]"
 
 
 smallerBlocking : List (Html msg) -> Html msg
@@ -148,8 +186,8 @@ blankCell content =
 
 
 
-paletteButton : Model -> String -> (SelectedColor -> msg) -> SelectedColor  -> Html msg
-paletteButton model label msg thisColor =
+paletteButton : Model -> String -> (SelectedColor -> msg) -> SelectedColor -> String -> Html msg
+paletteButton model label msg thisColor endStr =
     button
         [ css
             [ buttonStyles
@@ -179,7 +217,7 @@ paletteButton model label msg thisColor =
             
         , onClick <| msg thisColor
         ]
-        [ Html.text label ]
+        [ Html.text <| label ++ " " ++ endStr ]
         
 
 
@@ -205,58 +243,43 @@ buttonRow content =
 
 
 
-paletteCircle : Color -> Color -> Html msg
-paletteCircle fg bg =
-    let
-        accScore = contrastRatio fg bg
-
-        accScorePresent = Helper.Color.getWCAGScoreString accScore
-
-        accScoreGrade =
-            if accScore < 3 then
-                "X"
-            else if accScore >= 3 && accScore < 4.5 then
-                "A"
-            else if accScore >= 4.5 && accScore < 7 then
-                "AA"
-            else -- if accScore >= 7 then
-                "AAA"
-    in
-        div
-            [ css
-                [ displayFlex
-                , flexDirection row
-                , minWidth (blc 18)
+paletteCircle : Float -> Color -> Color -> Html msg
+paletteCircle contrastScore bg fg =
+    div
+        [ css
+            [ displayFlex
+            , flexDirection row
+            , minWidth (blc 18)
+            , height (blc 3)
+            , padding (blc 1)
+            , backgroundColor (convColor bg)
+            ]
+        ]
+        [ div  -- circle
+            [ css 
+                [ width (blc 3)
                 , height (blc 3)
-                , padding (blc 1)
-                , backgroundColor (convColor bg)
+                , backgroundColor (convColor fg)
+                , borderRadius (blc 2)
                 ]
             ]
-            [ div  -- circle
-                [ css 
-                    [ width (blc 3)
-                    , height (blc 3)
-                    , backgroundColor (convColor fg)
-                    , borderRadius (blc 2)
-                    ]
+            []
+        , span -- accessibility score
+            [ css
+                [ marginLeft (blc 1)
+                , color (convColor fg)
                 ]
-                []
-            , span -- accessibility score
-                [ css
-                    [ marginLeft (blc 1)
-                    , color (convColor fg)
-                    ]
-                ]
-                [ Html.text accScorePresent ]
+            ]
+            [ Html.text <| getWCAGScoreString contrastScore  ]
 
-            , span -- accessibility grade
-                [ css
-                    [ marginLeft (blc 1)
-                    , color (convColor <| gradeColor bg)
-                    ]
+        , span -- accessibility grade
+            [ css
+                [ marginLeft (blc 1)
+                , color (convColor <| gradeColor bg)
                 ]
-                [ Html.text <| "[" ++ accScoreGrade ++ "]" ]
             ]
+            [ Html.text <| "[" ++ (getWCAGGrade contrastScore) ++ "]" ]
+        ]
 
 paletteRow : List (Html msg) -> Html msg
 paletteRow content =
@@ -269,17 +292,3 @@ paletteRow content =
         , class "palette-box"
         ]
         content
-
-colorSect : Color -> HRTheme -> Html msg
-colorSect bg theme = 
-    paletteRow
-        [ paletteCircle theme.fHigh bg
-        , paletteCircle theme.fMed bg
-        , paletteCircle theme.fLow bg
-        ]
-
-invSect : HRTheme -> Html msg
-invSect theme =
-    paletteRow
-            [ paletteCircle theme.fInv theme.bInv
-            ]
