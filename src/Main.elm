@@ -132,7 +132,9 @@ update msg model =
                     Err _ -> model.theme 
 
         in
-            ( { model | theme = newTheme }
+            ( { model | theme = newTheme
+                      , tests = Tests.fromTheme newTheme
+              }
             , Cmd.none
             )
 

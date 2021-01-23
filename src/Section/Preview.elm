@@ -134,7 +134,7 @@ gradation results model =
     in
         case List.head gradationTestsMet of
             Nothing -> ""
-            Just h -> Tuple.second h
+            Just h -> "[" ++ Tuple.second h ++ "]"
 
 
 smallerBlocking : List (Html msg) -> Html msg
