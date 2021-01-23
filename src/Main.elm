@@ -15,6 +15,7 @@ import Html.Styled.Events exposing (..)
 import HRTheme exposing (HRTheme)
 import Json.Decode as JD
 import Task
+import Tests
 import Model exposing (Model, SelectedColor(..), ColorMode(..), EditType(..))
 import Section.File
 import Section.Preview
@@ -66,6 +67,7 @@ defaultTheme =
 init : () -> (Model, Cmd Msg)
 init _ =
     (   { theme = defaultTheme
+        , tests = Tests.fromTheme defaultTheme
         , selectedColor = Background
         , colorEditMode = HSL
         }
@@ -142,13 +144,16 @@ update msg model =
     ColorModeChanged cem ->
         ( { model | colorEditMode = cem }
         , Cmd.none
-        )
+        )       
 
     ColorChanged editType val ->
         let
             newColor = editColorValue val editType model
+            newTheme = Helper.Color.changeCurrentColor newColor model
         in
-            ({ model | theme = Helper.Color.changeCurrentColor newColor model }
+            ({ model | theme = newTheme
+                     , tests = Tests.fromTheme newTheme
+             }
             , Cmd.none
             )
 
