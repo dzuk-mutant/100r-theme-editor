@@ -4,37 +4,62 @@ import Css exposing (..)
 import Color.Accessibility exposing (contrastRatio)
 import FilePrev exposing (svgFilePreview)
 import Model exposing (Model)
-import Helper exposing (convColor)
+import Helper.Color exposing (convColor)
+import Helper.Styles exposing (cellWidth)
 import HRTheme exposing (HRTheme)
 import Html.Styled as Html exposing (Html, button, div, text, span)
 import Html.Styled.Attributes exposing (class, css)
 import Html.Styled.Events exposing (onClick)
+import Rpx exposing (rpx, blc)
+
 
 view : Model -> msg -> msg -> (Html msg)
 view model importMsg exportMsg =
     div [ class "files"
         , css
-            [ displayFlex
+            [ marginTop (blc 2)
+            , displayFlex
             , flexDirection row
             , justifyContent spaceBetween
             ]
         ]
         -------------- SCORE
-        [ div [ class "score" ]
-            [ div [ css [ color (convColor model.theme.fMed)]]
-                [ Html.text "theme score:"
+        [ div
+            [ class "score"
+            , css
+                [ marginLeft (blc 1)
+                , width cellWidth
+                ]
+            ]
+            [ div
+                [ css
+                    [ color (convColor model.theme.fMed)
+                    ]
+                ]
+                [ Html.text "theme score"
                 ]
             , div [ ]
-                [ span [] [ Html.text <| Helper.getWCAGScoreString <| minAccScore model.theme ]
+                [ span [] [ Html.text <| Helper.Color.getWCAGScoreString <| minAccScore model.theme ]
                 , span [] [ Html.text <| " [" ++ minAccGrade model.theme ++ "]" ]
                 ]
             ]
         -------------- FILE PREVIEW
-        , div [ class "file-prev" ]
+        , div
+            [ class "file-prev"
+            , css
+                [ border3 (rpx 1) solid (convColor model.theme.bMed)
+                , height (rpx 64)
+                ]
+            ]
             [ svgFilePreview model.theme ]
 
         -------------- BUTTONS
-        , div [ class "buttons" ]
+        , div
+            [ class "buttons"
+            , css
+                [ width cellWidth
+                ]
+            ]
             [ button [ onClick importMsg ] [ text "import" ]
             , button [ onClick exportMsg ] [ text "export" ]
             ]
@@ -80,4 +105,4 @@ minAccGrade : HRTheme -> String
 minAccGrade t =
     t
     |> minAccScore
-    |> Helper.getWCAGGrade
+    |> Helper.Color.getWCAGGrade

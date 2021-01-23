@@ -3,15 +3,14 @@ module Section.Preview exposing (view)
 import Css exposing (alignItems, backgroundColor, border, borderBox, borderRadius, boxSizing, center, color, column, displayFlex, flex, flexDirection, height, left, marginLeft, minWidth, none, padding, row, textAlign, unset, width, zero)
 import Color exposing (Color)
 import Color.Accessibility exposing (contrastRatio)
-import Helper exposing (convColor)
+import Helper.Color exposing (convColor)
+import Helper.Styles exposing (buttonStyles, cellWidth)
 import Html.Styled as Html exposing (Html, button, div)
 import Html.Styled.Attributes exposing (css, class)
 import Html.Styled.Events exposing (onClick)
 import HRTheme exposing (HRTheme)
 import Model exposing (Model, SelectedColor(..))
 import Rpx exposing (blc)
-import Section.Dimen exposing (leftBlocking, rightBlocking)
-import ViewHelper exposing (buttonStyles)
 import Html.Styled exposing (span)
 
 
@@ -79,7 +78,25 @@ view model selectMsg =
 
 
 
-cellWidth = (blc 18)
+
+
+
+{-| Provides a grade colour based on the
+background color for best possible contrast
+for the WCAG contrast grades.
+-}
+gradeColor : Color -> Color
+gradeColor bgCol =
+    let
+        lightness =
+            bgCol
+            |> Color.toHsla
+            |> .lightness
+    in
+        if lightness < 0.5 then
+            Color.rgb255 255 255 255
+        else
+            Color.rgb255 0 0 0 
 
 
 smallerBlocking : List (Html msg) -> Html msg
@@ -88,7 +105,7 @@ smallerBlocking content =
         [ css
             [ displayFlex
             , flexDirection column
-            , minWidth leftBlocking
+            , minWidth cellWidth
             ]
         ]
         content
@@ -105,7 +122,7 @@ largerBlocking content =
         [ css
             [ displayFlex
             , flexDirection column
-            , minWidth rightBlocking
+            , minWidth (blc <| 18 * 3)
             ]
         ]
         content
@@ -137,12 +154,12 @@ paletteButton model label msg thisColor =
         [ css
             [ buttonStyles
 
-            , minWidth cellWidth
+            , minWidth <| Rpx.add cellWidth (blc 2)
             , height (blc 5)
             , padding (blc 1)
 
             , border zero
-            , ViewHelper.defaultFonts
+            , Helper.Styles.defaultFonts
 
             , Css.batch (
                 case model.selectedColor == thisColor of
@@ -194,7 +211,7 @@ paletteCircle fg bg =
     let
         accScore = contrastRatio fg bg
 
-        accScorePresent = Helper.getWCAGScoreString accScore
+        accScorePresent = Helper.Color.getWCAGScoreString accScore
 
         accScoreGrade =
             if accScore < 3 then
@@ -236,6 +253,7 @@ paletteCircle fg bg =
             , span -- accessibility grade
                 [ css
                     [ marginLeft (blc 1)
+                    , color (convColor <| gradeColor bg)
                     ]
                 ]
                 [ Html.text <| "[" ++ accScoreGrade ++ "]" ]

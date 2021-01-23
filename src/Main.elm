@@ -3,13 +3,13 @@ module Main exposing (main)
 import Browser
 import Color
 import Color.Convert
-import Css exposing (alignItems, backgroundColor, center, column, displayFlex, flexDirection, height, marginBottom, marginTop, pct, vh, vw, width)
+import Css exposing (..)
 import File exposing (File)
 import File.Select as Select
 import File.Download as Download
-import Helper exposing (convColor, getCurrentColor, editColorValue)
+import Helper.Color exposing (convColor, editColorValue)
 import Html
-import Html.Styled exposing (Attribute, button, div, text)
+import Html.Styled exposing (Attribute, div)
 import Html.Styled.Attributes exposing (css)
 import Html.Styled.Events exposing (..)
 import HRTheme exposing (HRTheme)
@@ -20,7 +20,7 @@ import Section.File
 import Section.Preview
 import Section.Mixer
 import Xml.Decode as XD
-import ViewHelper
+import Helper.Styles
 import Rpx exposing (rpx, blc)
 
 
@@ -148,7 +148,7 @@ update msg model =
         let
             newColor = editColorValue val editType model
         in
-            ({ model | theme = Helper.changeCurrentColor newColor model }
+            ({ model | theme = Helper.Color.changeCurrentColor newColor model }
             , Cmd.none
             )
 
@@ -199,8 +199,13 @@ mainView model =
             , hijackOn "dragleave" (JD.succeed DragLeave)
             , hijackOn "drop" dropDecoder
             ]
-            [ ViewHelper.globalStyles model.theme
-            , div []
+            [ Helper.Styles.globalStyles model.theme
+            , div 
+                [ css
+                    [ padding (blc 2)
+                    ]
+
+                ]
                 [ Section.File.view model Pick Export
                 , divider model.theme
                 , Section.Preview.view model SelectedColorChanged

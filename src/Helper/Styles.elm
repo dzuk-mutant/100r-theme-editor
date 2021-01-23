@@ -1,11 +1,15 @@
-module ViewHelper exposing (globalStyles, buttonStyles, defaultFonts)
+module Helper.Styles exposing ( globalStyles
+                            , buttonStyles
+                            , defaultFonts
+                            , cellWidth
+                            )
 
-import Css exposing (Style, backgroundColor, boxSizing, border, borderBox, color, cursor, displayFlex, focus, fontSize, fontFamilies, fontWeight, int, lineHeight, margin, none, num, padding, opacity, outline, property, pointer, pseudoClass, textRendering, optimizeLegibility, zero)
+import Css exposing (Style, Rem, backgroundColor, boxSizing, border, borderBox, color, cursor, displayFlex, focus, fontSize, fontFamilies, fontWeight, int, lineHeight, margin, none, num, padding, opacity, outline, property, pointer, pseudoClass, textRendering, optimizeLegibility, zero)
 import Css.Global exposing (global, selector, typeSelector)
-import Helper exposing (convColor)
+import Helper.Color exposing (convColor)
 import HRTheme exposing (HRTheme)
 import Html.Styled exposing (Html)
-import Rpx exposing (rpx)
+import Rpx exposing (rpx, blc)
 
 
 
@@ -24,7 +28,7 @@ globalStyles theme =
 
             , defaultFonts
             , color <| convColor theme.fHigh
-            , lineHeight (num 1.5)
+            --, lineHeight (num 1.5)
             , backgroundColor <| convColor theme.background
 
             ---------------------- body housecleaning -----------------------
@@ -86,3 +90,7 @@ defaultFonts =
         , fontSize (rpx 16)
         , fontWeight (int 600)
         ]
+
+
+cellWidth : Rem
+cellWidth = (blc 18)
