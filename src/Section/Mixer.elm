@@ -2,15 +2,14 @@ module Section.Mixer exposing (view)
 
 import Color
 import Color.Convert exposing (colorToHex)
-import Helper exposing (convColor, getColorValue, getCurrentColor)
-import Css exposing (Style, alignItems, backgroundColor, border, borderBox, borderColor, borderRadius, borderWidth, boxSizing, center, color, column, cursor, displayFlex, fontWeight, flexDirection, height, int, left, textAlign, marginTop, marginLeft, minWidth, pct, pseudoClass, padding, pointer, padding2, property, row, width, unset, zero)
+import Helper.Color exposing (convColor, getColorValue, getCurrentColor)
+import Css exposing (..)
 import Html.Styled as Html exposing (Html, button, div, input, label)
 import Html.Styled.Attributes as Attr exposing (class, css, type_, value)
 import Html.Styled.Events exposing (onClick, onInput)
 import Model exposing (Model, SelectedColor(..), ColorMode(..), EditType(..))
 import Rpx exposing (blc, rpx)
-import Section.Dimen exposing (leftBlocking, rightBlocking)
-import ViewHelper
+import Helper.Styles
 
 
 type alias ColorEditMsg msg = EditType -> String -> msg
@@ -22,6 +21,7 @@ view model colorModeMsg colorEditMsg =
         [ class "mixer"
         , css   
             [ displayFlex
+            , marginBottom (blc 4)
             ]
         ]
         [ colorArea model
@@ -31,7 +31,7 @@ view model colorModeMsg colorEditMsg =
         , div
             [ class "slider-area"
             , css
-                [ width rightBlocking
+                [ width (blc <| (18*3) + (2*3))
                 ]
             ]
             [ div
@@ -80,7 +80,7 @@ colorArea model =
         div
             [ class "mixer"
             , css
-                [ width (Rpx.add leftBlocking (blc 2))
+                [ width (Rpx.add Helper.Styles.cellWidth (blc 2))
                 ]
             ]
             [ div
@@ -105,8 +105,12 @@ colorArea model =
                     , height (blc 11)
 
                     , backgroundColor (convColor colorPrev)
-                    , borderColor (convColor theme.bHigh)
-                    , borderWidth (rpx 2)
+
+                    , Css.batch (
+                        case model.selectedColor of
+                            Background -> [ border3 (rpx 1) solid (convColor theme.bMed)]
+                            _ -> []
+                        )
                     ]
                 ]
                 []
@@ -116,15 +120,15 @@ colorModeButton : Model -> ColorModeMsg msg -> ColorMode -> String -> Html msg
 colorModeButton model msg colorMode label =
     button
         [ css
-            [ ViewHelper.buttonStyles
+            [ Helper.Styles.buttonStyles
 
-            , minWidth (blc 14)
+            , minWidth <| Rpx.add Helper.Styles.cellWidth (blc 2)
             , height (blc 5)
             , padding (blc 1)
 
             , border zero
             , fontWeight (int 600)
-            , ViewHelper.defaultFonts
+            , Helper.Styles.defaultFonts
 
             , Css.batch (
                 case model.colorEditMode == colorMode of

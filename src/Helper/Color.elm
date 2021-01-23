@@ -1,4 +1,4 @@
-module Helper exposing ( convColor
+module Helper.Color exposing ( convColor
 
                         , getCurrentColor
                         , changeCurrentColor
