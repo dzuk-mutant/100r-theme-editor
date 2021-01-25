@@ -3,7 +3,7 @@ module FilePrev exposing (svgFilePreview)
 import Color exposing (Color)
 import Color.Convert exposing (colorToHex)
 import HRTheme exposing (HRTheme)
-import Html.Styled exposing (Html, img)
+import Html.Styled exposing (Html)
 import Svg.Styled exposing (Svg, svg, rect, circle)
 import Svg.Styled.Attributes exposing (xmlBase, id, fill, width, height, cx, cy, r, version, baseProfile)
 
