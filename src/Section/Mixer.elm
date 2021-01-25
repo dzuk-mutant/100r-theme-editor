@@ -239,25 +239,10 @@ slider model colorEditMsg labelStr editType minVal maxVal =
             , value <| getColorValue model editType
 
             , css
-                [ -- housecleaning styles
-                  width (pct 100) -- apparently FF needs this
-                , property "-webkit-appearance" "none"
-                , property "background" "transparent"
-
-                , pseudoClass "-webkit-slider-thumb"
-                    [ property "-webkit-appearance" "none"
-                    ]
-                , pseudoClass "-ms-track"
-                    [ width (pct 100)
-                    , cursor pointer
-                    , property "background" "transparent"
-                    , property "border-color" "transparent"
-                    , property "color" "transparent"
-                    ]
-                , pseudoClass "focus"
-                    [property "outline" "none"]
-
-
+                [ ------ housecleaning styles
+                  sliderHousecleaningStyles
+                 
+                ------- real styles
                 , sliderThumb
                     [ width (blc 2)
                     , height (blc 2)
@@ -265,14 +250,15 @@ slider model colorEditMsg labelStr editType minVal maxVal =
                     
                     , cursor pointer
 
-                    , borderRadius (blc 1)
-                    , backgroundColor (convColor model.theme.fMed)
+                    , border3 (rpx 2) solid (convColor model.theme.background) 
+                    , borderRadius <| Rpx.add (blc 1) (rpx 2)
+                    , backgroundColor (convColor model.theme.fLow)
                     ]
 
                 , sliderTrack
                     [ height (rpx 2)
                     , color (convColor model.theme.fLow)
-                    , backgroundColor (convColor model.theme.fLow)
+                    , backgroundColor (convColor model.theme.bMed)
                     ]
                 ]
             ]
@@ -290,19 +276,7 @@ slider model colorEditMsg labelStr editType minVal maxVal =
 
             , css
                 [ ---- housecleaning
-
-                  pseudoClass "-webkit-outer-spin-button"
-                    [ property "-webkit-appearance" "none"
-                    , margin zero
-                    ]
-
-                , pseudoClass "-webkit-inner-spin-button"
-                    [ property "-webkit-appearance" "none"
-                    , margin zero
-                    ]
-
-                , property "-moz-appearance" "textfield"
-                , border zero
+                  numberHousecleaningStyles
 
                 ---- normal styles    
                 , textBoxStyle
@@ -327,16 +301,60 @@ textBoxStyle =
         ]
 
 
+numberHousecleaningStyles : Style
+numberHousecleaningStyles =
+    Css.batch
+        [ pseudoElement "-webkit-outer-spin-button"
+            [ property "-webkit-appearance" "none"
+            , margin zero
+            ]
+
+        , pseudoElement "-webkit-inner-spin-button"
+            [ property "-webkit-appearance" "none"
+            , margin zero
+            ]
+
+        , property "-moz-appearance" "textfield"
+        , border zero
+        ]
+
+sliderHousecleaningStyles : Style
+sliderHousecleaningStyles =
+    Css.batch
+        [ property "-webkit-appearance" "none"
+        , width (pct 100) -- apparently FF needs this
+        , backgroundColor transparent
+
+        , pseudoElement "-webkit-slider-thumb"
+            [ property "-webkit-appearance" "none"
+            ]
+        , pseudoElement "-ms-track"
+            [ width (pct 100)
+            , cursor pointer
+
+            -- hides the slider so custom styles can be added
+            , backgroundColor transparent
+            , borderColor transparent
+            , color transparent
+            ]
+        , focus
+            [ outline none ]
+        ]
+
+{-| Argh, it's HTML input styling time!
+-}
 sliderThumb : List Style -> Style
 sliderThumb styles =
     Css.batch
-        [ pseudoClass "-webkit-slider-thumb" styles
-        , pseudoClass "-moz-range-thumb" styles
+        [ pseudoElement "-webkit-slider-thumb" styles
+        , pseudoElement "-moz-range-thumb" styles
         ]
 
+{-| Argh, it's HTML input styling time!
+-}
 sliderTrack : List Style -> Style
 sliderTrack styles =
     Css.batch
-        [ pseudoClass "-webkit-slider-runnable-track" styles
-        , pseudoClass "-moz-range-track" styles
+        [ pseudoElement "-webkit-slider-runnable-track" styles
+        , pseudoElement "-moz-range-track" styles
         ]
