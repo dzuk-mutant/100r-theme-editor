@@ -108,7 +108,7 @@ color value, an edit type and existing colour
 and returns a modified colour based on the first 2 arguments.
 -}
 editColorValue : String -> ValueEditType -> Model -> Color
-editColorValue channelString editType model =
+editColorValue valueString editType model =
     let
         color = getSelectedColor model
         rgb = Color.toRgba color
@@ -122,8 +122,8 @@ editColorValue channelString editType model =
 
         So clamping makes sure they can never do that.
         -}
-        clampChannel : Float -> Float
-        clampChannel c =
+        clampValue : Float -> Float
+        clampValue c =
             case editType of
                 Red -> clamp 0 255 c
                 Green -> clamp 0 255 c
@@ -135,8 +135,8 @@ editColorValue channelString editType model =
         {- Color.Color treats color values as a Float between 0 and 1, so
         the int-derived values we have need to be fit into that format.
         -}
-        prepareChannel : Float -> Float
-        prepareChannel c =
+        prepareValue : Float -> Float
+        prepareValue c =
             case editType of
                 Red -> c / 255
                 Green -> c / 255
@@ -149,8 +149,8 @@ editColorValue channelString editType model =
         {- Puts the channel into a new color value to mix it with the
         pre-existing values..
         -}
-        packChannel : Float -> Color
-        packChannel c =
+        packValue : Float -> Color
+        packValue c =
             case editType of
                 Red -> Color.rgb c rgb.green rgb.blue
                 Green -> Color.rgb rgb.red c rgb.blue
@@ -160,16 +160,21 @@ editColorValue channelString editType model =
                 Lightness -> Color.hsl hsl.hue hsl.saturation c
 
     in
-        channelString
+        valueString
         |> String.toInt
         |> Maybe.withDefault 0 -- there should be no error with cnversion from string to int
         |> toFloat
-        |> clampChannel -- clamp to prevent user error.
-        |> prepareChannel -- fit it between 0 and 1.
-        |> packChannel -- mix into a new color.
+        |> clampValue -- clamp to prevent user error.
+        |> prepareValue -- fit it between 0 and 1.
+        |> packValue -- mix into a new color.
 
 
-{-| Performs the colour transformations necessary for previewing what the 
+
+{-| Performs the colour transformations necessary for
+previewing what the hex color is as the user is inputting it.
+
+It's also used to properly 'set' the hex input once the
+user has focused away.
 -}
 editColorHex : String -> Model -> Color
 editColorHex hex model =

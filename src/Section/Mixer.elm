@@ -1,7 +1,5 @@
 module Section.Mixer exposing (view)
 
-import Color
-import Color.Convert exposing (colorToHex)
 import Helper.Color exposing (convColor, getColorValue, getSelectedColor)
 import Helper.Styles
 import Css exposing (..)

@@ -37,20 +37,6 @@ main = Browser.document
     }
 
 
-
-
-
-{-| An important shorthand for all the things that
-need to be done when colors get updated.
--}
-updateColorInModel : Model -> HRTheme -> Model
-updateColorInModel model newTheme = 
-    { model | theme = newTheme
-            , tests = Tests.fromTheme newTheme
-            , hexInputValue = Color.Convert.colorToHex <| Helper.Color.getSelectedColor model
-    }
-
-
 {-| The example theme on the Hundred Rabbits theme git readme.
 -}
 defaultTheme : HRTheme
@@ -80,8 +66,10 @@ init : () -> (Model, Cmd Msg)
 init _ =
     (   { theme = defaultTheme
         , tests = Tests.fromTheme defaultTheme
+
         , selectedColor = Background
         , colorEditMode = HSL
+
         , hexInputFocused = False
         , hexInputValue = Color.Convert.colorToHex defaultTheme.background
         }
@@ -280,7 +268,6 @@ mainView model =
                 [ css
                     [ padding (blc 2)
                     ]
-
                 ]
                 [ Section.File.view model Pick Export
                 , divider model.theme
