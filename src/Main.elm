@@ -179,10 +179,9 @@ update msg model =
             ( { model | theme = newTheme
                       , tests = Tests.fromTheme newTheme
 
-                      {- while the hex input isn't being edited,
-                         make the hex whatever the color is right now.
+                      {- Update the hex input value wth the new value.
                       -}
-                      , hexInputValue = Color.Convert.colorToHex <| Helper.Color.getSelectedColor model
+                      , hexInputValue = Color.Convert.colorToHex <| Helper.Color.getNewSelectedColor model.selectedColor newTheme
               }
             , Cmd.none
             )
