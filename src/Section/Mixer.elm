@@ -3,13 +3,14 @@ module Section.Mixer exposing (view)
 import Color
 import Color.Convert exposing (colorToHex)
 import Helper.Color exposing (convColor, getColorValue, getCurrentColor)
+import Helper.Styles
 import Css exposing (..)
 import Html.Styled as Html exposing (Html, button, div, input, label)
-import Html.Styled.Attributes as Attr exposing (class, css, type_, value)
+import Html.Styled.Attributes as Attr exposing (class, css, type_, value, step)
 import Html.Styled.Events exposing (onClick, onInput)
 import Model exposing (Model, SelectedColor(..), ColorMode(..), EditType(..))
 import Rpx exposing (blc, rpx)
-import Helper.Styles
+
 
 
 type alias ColorEditMsg msg = EditType -> String -> msg
@@ -251,9 +252,35 @@ slider model colorEditMsg labelStr editType minVal maxVal =
             []
 
         ----------- TEXT BOX
-        , div
-            [ css
-                [ textBoxStyle
+        , input
+            [ class "text"
+            , type_ "number"
+            , onInput (colorEditMsg editType)
+            , value <| getColorValue model editType
+            , Attr.min <| String.fromInt minVal
+            , Attr.max <| String.fromInt maxVal
+            , step "1"
+
+            , css
+                [ ---- housecleaning
+
+                  pseudoClass "-webkit-outer-spin-button"
+                    [ property "-webkit-appearance" "none"
+                    , margin zero
+                    ]
+
+                , pseudoClass "-webkit-inner-spin-button"
+                    [ property "-webkit-appearance" "none"
+                    , margin zero
+                    ]
+
+                , property "-moz-appearance" "textfield"
+                , border zero
+
+                ---- normal styles    
+                , textBoxStyle
+                , Helper.Styles.defaultFonts
+                , color (convColor model.theme.fHigh)
                 , width (blc 5)
                 , marginLeft (blc 2)
                 , backgroundColor (convColor model.theme.bHigh)

@@ -95,6 +95,27 @@ editColorValue channelString editType model =
         rgb = Color.toRgba color
         hsl = Color.toHsla color
         
+        
+        {- it's important that they are clamped because the value
+        could be coming from a slider or a number box, in the latter,
+        the user can still enter an invalidly high/low value even with
+        min/max attrs.
+
+        So clamping makes sure they can never do that.
+        -}
+        clampChannel : Float -> Float
+        clampChannel c =
+            case editType of
+                Red -> clamp 0 255 c
+                Green -> clamp 0 255 c
+                Blue -> clamp 0 255 c
+                Hue -> clamp 0 360 c
+                Saturation -> clamp 0 100 c
+                Lightness -> clamp 0 100 c
+
+        {- Color.Color treats color values as a Float between 0 and 1, so
+        the int-derived values we have need to be fit into that format.
+        -}
         prepareChannel : Float -> Float
         prepareChannel c =
             case editType of
@@ -105,6 +126,10 @@ editColorValue channelString editType model =
                 Saturation -> c / 100
                 Lightness -> c / 100
 
+
+        {- Puts the channel into a new color value to mix it with the
+        pre-existing values..
+        -}
         packChannel : Float -> Color
         packChannel c =
             case editType of
@@ -120,5 +145,6 @@ editColorValue channelString editType model =
         |> String.toInt
         |> Maybe.withDefault 0 -- there should be no error with cnversion from string to int
         |> toFloat
-        |> prepareChannel
-        |> packChannel
+        |> clampChannel -- clamp to prevent user error.
+        |> prepareChannel -- fit it between 0 and 1.
+        |> packChannel -- mix into a new color.

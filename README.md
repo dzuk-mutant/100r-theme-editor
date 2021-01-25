@@ -12,6 +12,7 @@ Create and edit [Hundred Rabbits themes](https://github.com/hundredrabbits/Theme
 to view and edit them.
 - Click on the different color names in the middle section to select them for editing.
 - Use the color mode tabs and sliders at the bottom section to adjust the selected color.
+    - You can use sliders or the text boxes next to them to edit color values.
 - All changes are immediate, and you can see the accessibility
 score of your theme in real time.
 - Click the download button to download your new theme.
