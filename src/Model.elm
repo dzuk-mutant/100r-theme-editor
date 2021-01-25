@@ -1,7 +1,7 @@
 module Model exposing (Model
                       , SelectedColor(..)
                       , ColorMode(..)
-                      , EditType(..)
+                      , ValueEditType(..)
                       )
 
 import HRTheme exposing (HRTheme)
@@ -13,6 +13,9 @@ type alias Model =
     , selectedColor : SelectedColor
     , colorEditMode : ColorMode
     , tests : Tests
+
+    , hexInputValue : String
+    , hexInputFocused : Bool
     }
 
 
@@ -32,7 +35,7 @@ type ColorMode
     = HSL
     | RGB
 
-type EditType
+type ValueEditType
     = Red
     | Green
     | Blue

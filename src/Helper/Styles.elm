@@ -4,7 +4,7 @@ module Helper.Styles exposing ( globalStyles
                             , cellWidth
                             )
 
-import Css exposing (Style, Rem, backgroundColor, boxSizing, border, borderBox, color, cursor, displayFlex, focus, fontSize, fontFamilies, fontWeight, int, lineHeight, margin, none, num, padding, opacity, outline, property, pointer, pseudoClass, textRendering, optimizeLegibility, zero)
+import Css exposing (..)
 import Css.Global exposing (global, selector, typeSelector)
 import Helper.Color exposing (convColor)
 import HRTheme exposing (HRTheme)

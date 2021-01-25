@@ -1,30 +1,31 @@
 module Section.Mixer exposing (view)
 
-import Color
-import Color.Convert exposing (colorToHex)
-import Helper.Color exposing (convColor, getColorValue, getCurrentColor)
-import Css exposing (..)
-import Html.Styled as Html exposing (Html, button, div, input, label)
-import Html.Styled.Attributes as Attr exposing (class, css, type_, value)
-import Html.Styled.Events exposing (onClick, onInput)
-import Model exposing (Model, SelectedColor(..), ColorMode(..), EditType(..))
-import Rpx exposing (blc, rpx)
+import Helper.Color exposing (convColor, getColorValue, getSelectedColor)
 import Helper.Styles
+import Css exposing (..)
+import Html.Styled as Html exposing (Html, Attribute, button, div, input, label)
+import Html.Styled.Attributes as Attr exposing (class, css, type_, value, step)
+import Html.Styled.Events exposing (onClick, onInput, onFocus, onBlur)
+import Model exposing (Model, SelectedColor(..), ColorMode(..), ValueEditType(..))
+import Rpx exposing (blc, rpx)
 
 
-type alias ColorEditMsg msg = EditType -> String -> msg
+
+type alias ColorEditMsg msg = ValueEditType -> String -> msg
 type alias ColorModeMsg msg = ColorMode -> msg
+type alias HexEdit msg = String -> msg
+type alias HexFocus msg = Bool -> msg
 
-view : Model ->  ColorModeMsg msg -> ColorEditMsg msg -> Html msg
-view model colorModeMsg colorEditMsg =
+view : Model ->  ColorModeMsg msg -> ColorEditMsg msg -> HexEdit msg -> HexFocus msg -> Html msg
+view model colorModeMsg colorEditMsg hexEditMsg hexFocusMsg =
     div
-        [ class "mixer"
+        [ class "section-mixer"
         , css   
             [ displayFlex
             , marginBottom (blc 4)
             ]
         ]
-        [ colorArea model
+        [ colorArea model hexEditMsg hexFocusMsg
 
         , div [ css [width (blc 1)]][]
 
@@ -35,7 +36,7 @@ view model colorModeMsg colorEditMsg =
                 ]
             ]
             [ div
-                [ class "mixer-area"
+                [ class "color-values"
                 , css
                     [ displayFlex
                     , flexDirection column
@@ -59,8 +60,8 @@ view model colorModeMsg colorEditMsg =
         ]
 
 
-colorArea : Model -> Html msg
-colorArea model =
+colorArea : Model -> HexEdit msg -> HexFocus msg -> Html msg
+colorArea model hexEditMsg hexFocusMsg =
     let
         theme = model.theme
         label = 
@@ -75,12 +76,20 @@ colorArea model =
                 BLow -> "b_low"
                 BInv -> "b_inv"
         
-        colorPrev = getCurrentColor model
+        colorPrev = getSelectedColor model
+
+        maybeHexVal : List (Attribute msg)
+        maybeHexVal =
+            case model.hexInputFocused of
+                False -> [ value <| model.hexInputValue ]
+                True -> [ value <| model.hexInputValue ]
     in
         div
-            [ class "mixer"
+            [ class "preview"
             , css
-                [ width (Rpx.add Helper.Styles.cellWidth (blc 2))
+                [ displayFlex
+                , flexDirection column
+                , width (Rpx.add Helper.Styles.cellWidth (blc 2))
                 ]
             ]
             [ div
@@ -90,14 +99,33 @@ colorArea model =
                     ]
                 ]
                 [ Html.text label ]
-            , div
-                [ class "hex"
-                , css
-                    [ textBoxStyle
-                    , backgroundColor (convColor theme.bHigh)
+
+                
+            , input
+                (   [ class "hex"
+                    , type_ "text"
+                    , Attr.maxlength 7
+                    , onInput hexEditMsg
+
+                    , onBlur <| hexFocusMsg False
+                    , onFocus <| hexFocusMsg True
+
+                    , css
+                        [ --- housecleaning
+                        border zero
+
+                        --- real styles
+                        , textBoxStyle
+                        , Helper.Styles.defaultFonts
+                        , backgroundColor (convColor theme.bHigh)
+                        , color (convColor theme.fHigh)
+                        ]
                     ]
-                ]
-                [ Html.text <| colorToHex colorPrev ]
+                    ++ maybeHexVal
+                )
+                []
+
+
             , div
                 [ class "preview"
                 , css
@@ -174,7 +202,7 @@ hslSliders model colorEditMsg =
         ]
 
     
-slider : Model -> ColorEditMsg msg -> String -> EditType -> Int -> Int -> Html msg
+slider : Model -> ColorEditMsg msg -> String -> ValueEditType -> Int -> Int -> Html msg
 slider model colorEditMsg labelStr editType minVal maxVal =
     div
         [ class "sliderArea"
@@ -211,25 +239,10 @@ slider model colorEditMsg labelStr editType minVal maxVal =
             , value <| getColorValue model editType
 
             , css
-                [ -- housecleaning styles
-                  width (pct 100) -- apparently FF needs this
-                , property "-webkit-appearance" "none"
-                , property "background" "transparent"
-
-                , pseudoClass "-webkit-slider-thumb"
-                    [ property "-webkit-appearance" "none"
-                    ]
-                , pseudoClass "-ms-track"
-                    [ width (pct 100)
-                    , cursor pointer
-                    , property "background" "transparent"
-                    , property "border-color" "transparent"
-                    , property "color" "transparent"
-                    ]
-                , pseudoClass "focus"
-                    [property "outline" "none"]
-
-
+                [ ------ housecleaning styles
+                  sliderHousecleaningStyles
+                 
+                ------- real styles
                 , sliderThumb
                     [ width (blc 2)
                     , height (blc 2)
@@ -237,23 +250,38 @@ slider model colorEditMsg labelStr editType minVal maxVal =
                     
                     , cursor pointer
 
-                    , borderRadius (blc 1)
-                    , backgroundColor (convColor model.theme.fMed)
+                    , border3 (rpx 2) solid (convColor model.theme.background) 
+                    , borderRadius <| Rpx.add (blc 1) (rpx 2)
+                    , backgroundColor (convColor model.theme.fLow)
                     ]
 
                 , sliderTrack
                     [ height (rpx 2)
                     , color (convColor model.theme.fLow)
-                    , backgroundColor (convColor model.theme.fLow)
+                    , backgroundColor (convColor model.theme.bMed)
                     ]
                 ]
             ]
             []
 
         ----------- TEXT BOX
-        , div
-            [ css
-                [ textBoxStyle
+        , input
+            [ class "text"
+            , type_ "number"
+            , onInput (colorEditMsg editType)
+            , value <| getColorValue model editType
+            , Attr.min <| String.fromInt minVal
+            , Attr.max <| String.fromInt maxVal
+            , step "1"
+
+            , css
+                [ ---- housecleaning
+                  numberHousecleaningStyles
+
+                ---- normal styles    
+                , textBoxStyle
+                , Helper.Styles.defaultFonts
+                , color (convColor model.theme.fHigh)
                 , width (blc 5)
                 , marginLeft (blc 2)
                 , backgroundColor (convColor model.theme.bHigh)
@@ -273,16 +301,60 @@ textBoxStyle =
         ]
 
 
+numberHousecleaningStyles : Style
+numberHousecleaningStyles =
+    Css.batch
+        [ pseudoElement "-webkit-outer-spin-button"
+            [ property "-webkit-appearance" "none"
+            , margin zero
+            ]
+
+        , pseudoElement "-webkit-inner-spin-button"
+            [ property "-webkit-appearance" "none"
+            , margin zero
+            ]
+
+        , property "-moz-appearance" "textfield"
+        , border zero
+        ]
+
+sliderHousecleaningStyles : Style
+sliderHousecleaningStyles =
+    Css.batch
+        [ property "-webkit-appearance" "none"
+        , width (pct 100) -- apparently FF needs this
+        , backgroundColor transparent
+
+        , pseudoElement "-webkit-slider-thumb"
+            [ property "-webkit-appearance" "none"
+            ]
+        , pseudoElement "-ms-track"
+            [ width (pct 100)
+            , cursor pointer
+
+            -- hides the slider so custom styles can be added
+            , backgroundColor transparent
+            , borderColor transparent
+            , color transparent
+            ]
+        , focus
+            [ outline none ]
+        ]
+
+{-| Argh, it's HTML input styling time!
+-}
 sliderThumb : List Style -> Style
 sliderThumb styles =
     Css.batch
-        [ pseudoClass "-webkit-slider-thumb" styles
-        , pseudoClass "-moz-range-thumb" styles
+        [ pseudoElement "-webkit-slider-thumb" styles
+        , pseudoElement "-moz-range-thumb" styles
         ]
 
+{-| Argh, it's HTML input styling time!
+-}
 sliderTrack : List Style -> Style
 sliderTrack styles =
     Css.batch
-        [ pseudoClass "-webkit-slider-runnable-track" styles
-        , pseudoClass "-moz-range-track" styles
+        [ pseudoElement "-webkit-slider-runnable-track" styles
+        , pseudoElement "-moz-range-track" styles
         ]

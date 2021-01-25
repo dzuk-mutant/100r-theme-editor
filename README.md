@@ -11,9 +11,11 @@ Create and edit [Hundred Rabbits themes](https://github.com/hundredrabbits/Theme
 - Drag and drop themes into the window (or click the import button)
 to view and edit them.
 - Click on the different color names in the middle section to select them for editing.
-- Use the color mode tabs and sliders at the bottom section to adjust the selected color.
-- All changes are immediate, and you can see the accessibility
-score of your theme in real time.
+- Use the color controls at the bottom section to adjust the selected color.
+    - Click 'HSL' for HSL sliders and 'RGB' for RGB sliders.
+    - You can use sliders or the text boxes next to them to edit color values.
+    - You can enter hex values in the hex text box. (It will revert to the previous color if there was an error in the hex colour that you give.)
+- All changes are immediate, and you can see the tests and accessibility score of your theme in real time.
 - Click the download button to download your new theme.
 
 

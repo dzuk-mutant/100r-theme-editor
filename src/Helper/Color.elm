@@ -1,17 +1,19 @@
 module Helper.Color exposing ( convColor
 
-                        , getCurrentColor
-                        , changeCurrentColor
+                        , getSelectedColor
+                        , getNewSelectedColor
+                        , changeSelectedColor
 
                         , getColorValue
                         , editColorValue
+                        , editColorHex
                         )
 
 import Color exposing (Color)
 import Color.Convert
 import Css
 import HRTheme exposing (HRTheme)
-import Model exposing (Model, SelectedColor(..), EditType(..))
+import Model exposing (Model, SelectedColor(..), ValueEditType(..))
 
 {-| Converts avh4's elm-color
 to elm-css's Color type.
@@ -23,10 +25,11 @@ convColor colorData =
     |> Css.hex
 
 
+
 {-| Returns a colour from the currently selected color.
 -}
-getCurrentColor : Model -> Color.Color
-getCurrentColor model =
+getSelectedColor : Model -> Color.Color
+getSelectedColor model =
     case model.selectedColor of
         Background -> model.theme.background
         FHigh -> model.theme.fHigh
@@ -39,11 +42,27 @@ getCurrentColor model =
         BInv -> model.theme.bInv
 
 
+{-| Returns a color from a newly selected colour
+(ie. one that would be in an update function case)
+-}
+getNewSelectedColor : SelectedColor -> HRTheme -> Color.Color
+getNewSelectedColor selCol theme =
+    case selCol of
+        Background -> theme.background
+        FHigh -> theme.fHigh
+        FMed -> theme.fMed
+        FLow -> theme.fLow
+        FInv -> theme.fInv
+        BHigh -> theme.bHigh
+        BMed -> theme.bMed
+        BLow -> theme.bLow
+        BInv -> theme.bInv
+
 {-| Takes a colour and applies it to the current
 selected colour in the theme and returns the new theme.
 -}
-changeCurrentColor : Color.Color -> Model -> HRTheme
-changeCurrentColor color model =
+changeSelectedColor : Color.Color -> Model -> HRTheme
+changeSelectedColor color model =
     let
         c = color
         t = model.theme
@@ -64,7 +83,7 @@ changeCurrentColor color model =
 {-| Gets a specific value of the current colour with an
 EditType value.
 -}
-getColorValue : Model -> EditType -> String
+getColorValue : Model -> ValueEditType -> String
 getColorValue model editType =
     let
         getColorAspect : Color.Color -> Float
@@ -78,7 +97,7 @@ getColorValue model editType =
                 Lightness ->  c |> Color.toHsla |> .lightness |> (*) 100
     in
         model
-        |> getCurrentColor
+        |> getSelectedColor
         |> getColorAspect
         |> round
         |> String.fromInt
@@ -88,15 +107,36 @@ getColorValue model editType =
 color value, an edit type and existing colour
 and returns a modified colour based on the first 2 arguments.
 -}
-editColorValue : String -> EditType -> Model -> Color
-editColorValue channelString editType model =
+editColorValue : String -> ValueEditType -> Model -> Color
+editColorValue valueString editType model =
     let
-        color = getCurrentColor model
+        color = getSelectedColor model
         rgb = Color.toRgba color
         hsl = Color.toHsla color
         
-        prepareChannel : Float -> Float
-        prepareChannel c =
+        
+        {- it's important that they are clamped because the value
+        could be coming from a slider or a number box, in the latter,
+        the user can still enter an invalidly high/low value even with
+        min/max attrs.
+
+        So clamping makes sure they can never do that.
+        -}
+        clampValue : Float -> Float
+        clampValue c =
+            case editType of
+                Red -> clamp 0 255 c
+                Green -> clamp 0 255 c
+                Blue -> clamp 0 255 c
+                Hue -> clamp 0 360 c
+                Saturation -> clamp 0 100 c
+                Lightness -> clamp 0 100 c
+
+        {- Color.Color treats color values as a Float between 0 and 1, so
+        the int-derived values we have need to be fit into that format.
+        -}
+        prepareValue : Float -> Float
+        prepareValue c =
             case editType of
                 Red -> c / 255
                 Green -> c / 255
@@ -105,8 +145,12 @@ editColorValue channelString editType model =
                 Saturation -> c / 100
                 Lightness -> c / 100
 
-        packChannel : Float -> Color
-        packChannel c =
+
+        {- Puts the channel into a new color value to mix it with the
+        pre-existing values..
+        -}
+        packValue : Float -> Color
+        packValue c =
             case editType of
                 Red -> Color.rgb c rgb.green rgb.blue
                 Green -> Color.rgb rgb.red c rgb.blue
@@ -116,9 +160,35 @@ editColorValue channelString editType model =
                 Lightness -> Color.hsl hsl.hue hsl.saturation c
 
     in
-        channelString
+        valueString
         |> String.toInt
         |> Maybe.withDefault 0 -- there should be no error with cnversion from string to int
         |> toFloat
-        |> prepareChannel
-        |> packChannel
+        |> clampValue -- clamp to prevent user error.
+        |> prepareValue -- fit it between 0 and 1.
+        |> packValue -- mix into a new color.
+
+
+
+{-| Performs the colour transformations necessary for
+previewing what the hex color is as the user is inputting it.
+
+It's also used to properly 'set' the hex input once the
+user has focused away.
+-}
+editColorHex : String -> Model -> Color
+editColorHex hex model =
+    let
+        color = getSelectedColor model
+
+        hashed = case String.left 1 hex == "#" of
+            True -> hex
+            False -> "#" ++ hex
+
+        -- if the new color isn't good, keep the old one
+        newColor = hashed
+            |> Color.Convert.hexToColor
+            |> Result.toMaybe
+            |> Maybe.withDefault color
+    in
+        newColor
