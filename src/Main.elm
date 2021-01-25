@@ -16,7 +16,7 @@ import HRTheme exposing (HRTheme)
 import Json.Decode as JD
 import Task
 import Tests
-import Model exposing (Model, SelectedColor(..), ColorMode(..), EditType(..))
+import Model exposing (Model, SelectedColor(..), ColorMode(..), ValueEditType(..))
 import Section.File
 import Section.Preview
 import Section.Mixer
@@ -37,6 +37,18 @@ main = Browser.document
     }
 
 
+
+
+
+{-| An important shorthand for all the things that
+need to be done when colors get updated.
+-}
+updateColorInModel : Model -> HRTheme -> Model
+updateColorInModel model newTheme = 
+    { model | theme = newTheme
+            , tests = Tests.fromTheme newTheme
+            , hexInputValue = Color.Convert.colorToHex <| Helper.Color.getSelectedColor model
+    }
 
 
 {-| The example theme on the Hundred Rabbits theme git readme.
@@ -70,6 +82,8 @@ init _ =
         , tests = Tests.fromTheme defaultTheme
         , selectedColor = Background
         , colorEditMode = HSL
+        , hexInputFocused = False
+        , hexInputValue = Color.Convert.colorToHex defaultTheme.background
         }
     , Cmd.none
     )
@@ -86,11 +100,17 @@ type Msg
   | DragEnter
   | DragLeave
   | GotFiles File (List File)
+  
   | ThemeLoaded String
-
   | SelectedColorChanged SelectedColor
+
   | ColorModeChanged ColorMode 
-  | ColorChanged EditType String
+  | ColorValueEdited ValueEditType String
+
+  | ColorHexEdited String
+  | ColorHexFocusChanged Bool
+
+
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -134,31 +154,80 @@ update msg model =
         in
             ( { model | theme = newTheme
                       , tests = Tests.fromTheme newTheme
+
+                      {-    Get the same selected color, but from a new theme.
+                      -}
+                      , hexInputValue = Color.Convert.colorToHex <| Helper.Color.getNewSelectedColor model.selectedColor newTheme
               }
             , Cmd.none
             )
 
+
+
     SelectedColorChanged sc ->
-        ( { model | selectedColor = sc }
-        , Cmd.none
+        ( { model | selectedColor = sc 
+                    
+                    {-  the hex input has to be updated with the new selected color at this time.
+                        the rest will change immediately automatically, but this won't.
+                    -}
+                  , hexInputValue = Color.Convert.colorToHex <| Helper.Color.getNewSelectedColor sc model.theme
+          }
+          , Cmd.none
         )
     
+
+
+
     ColorModeChanged cem ->
         ( { model | colorEditMode = cem }
         , Cmd.none
         )       
 
-    ColorChanged editType val ->
+    ColorValueEdited editType val ->
         let
             newColor = editColorValue val editType model
-            newTheme = Helper.Color.changeCurrentColor newColor model
+            newTheme = Helper.Color.changeSelectedColor newColor model
         in
-            ({ model | theme = newTheme
-                     , tests = Tests.fromTheme newTheme
-             }
+            ( { model | theme = newTheme
+                      , tests = Tests.fromTheme newTheme
+
+                      {- while the hex input isn't being edited,
+                         make the hex whatever the color is right now.
+                      -}
+                      , hexInputValue = Color.Convert.colorToHex <| Helper.Color.getSelectedColor model
+              }
             , Cmd.none
             )
 
+
+
+    
+    ColorHexFocusChanged b ->
+        case b of 
+            True -> ( { model | hexInputFocused = b }, Cmd.none)
+
+            {-  when focusing away, we need to straighten the
+                user input out by making it conform to valid hex input.
+            -}
+            False -> ( { model | hexInputFocused = b
+                               , hexInputValue = Color.Convert.colorToHex <| Helper.Color.editColorHex model.hexInputValue model
+                       }
+                     , Cmd.none
+                     )
+
+    ColorHexEdited hex ->
+        let
+            newColor = Helper.Color.editColorHex hex model
+            newTheme = Helper.Color.changeSelectedColor newColor model
+        in
+            ( { model | theme = newTheme
+                      , tests = Tests.fromTheme newTheme
+
+                      -- while editing, make the hex what the user is typing
+                      , hexInputValue = hex 
+              }
+            , Cmd.none
+            )
 
 
 -- SUBSCRIPTIONS
@@ -217,7 +286,11 @@ mainView model =
                 , divider model.theme
                 , Section.Preview.view model SelectedColorChanged
                 , divider model.theme
-                , Section.Mixer.view model ColorModeChanged ColorChanged
+                , Section.Mixer.view model
+                    ColorModeChanged
+                    ColorValueEdited
+                    ColorHexEdited
+                    ColorHexFocusChanged
                 ]
             ]
         )

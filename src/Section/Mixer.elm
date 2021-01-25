@@ -2,30 +2,32 @@ module Section.Mixer exposing (view)
 
 import Color
 import Color.Convert exposing (colorToHex)
-import Helper.Color exposing (convColor, getColorValue, getCurrentColor)
+import Helper.Color exposing (convColor, getColorValue, getSelectedColor)
 import Helper.Styles
 import Css exposing (..)
-import Html.Styled as Html exposing (Html, button, div, input, label)
+import Html.Styled as Html exposing (Html, Attribute, button, div, input, label)
 import Html.Styled.Attributes as Attr exposing (class, css, type_, value, step)
-import Html.Styled.Events exposing (onClick, onInput)
-import Model exposing (Model, SelectedColor(..), ColorMode(..), EditType(..))
+import Html.Styled.Events exposing (onClick, onInput, onFocus, onBlur)
+import Model exposing (Model, SelectedColor(..), ColorMode(..), ValueEditType(..))
 import Rpx exposing (blc, rpx)
 
 
 
-type alias ColorEditMsg msg = EditType -> String -> msg
+type alias ColorEditMsg msg = ValueEditType -> String -> msg
 type alias ColorModeMsg msg = ColorMode -> msg
+type alias HexEdit msg = String -> msg
+type alias HexFocus msg = Bool -> msg
 
-view : Model ->  ColorModeMsg msg -> ColorEditMsg msg -> Html msg
-view model colorModeMsg colorEditMsg =
+view : Model ->  ColorModeMsg msg -> ColorEditMsg msg -> HexEdit msg -> HexFocus msg -> Html msg
+view model colorModeMsg colorEditMsg hexEditMsg hexFocusMsg =
     div
-        [ class "mixer"
+        [ class "section-mixer"
         , css   
             [ displayFlex
             , marginBottom (blc 4)
             ]
         ]
-        [ colorArea model
+        [ colorArea model hexEditMsg hexFocusMsg
 
         , div [ css [width (blc 1)]][]
 
@@ -36,7 +38,7 @@ view model colorModeMsg colorEditMsg =
                 ]
             ]
             [ div
-                [ class "mixer-area"
+                [ class "color-values"
                 , css
                     [ displayFlex
                     , flexDirection column
@@ -60,8 +62,8 @@ view model colorModeMsg colorEditMsg =
         ]
 
 
-colorArea : Model -> Html msg
-colorArea model =
+colorArea : Model -> HexEdit msg -> HexFocus msg -> Html msg
+colorArea model hexEditMsg hexFocusMsg =
     let
         theme = model.theme
         label = 
@@ -76,12 +78,20 @@ colorArea model =
                 BLow -> "b_low"
                 BInv -> "b_inv"
         
-        colorPrev = getCurrentColor model
+        colorPrev = getSelectedColor model
+
+        maybeHexVal : List (Attribute msg)
+        maybeHexVal =
+            case model.hexInputFocused of
+                False -> [ value <| model.hexInputValue ]
+                True -> [ value <| model.hexInputValue ]
     in
         div
-            [ class "mixer"
+            [ class "preview"
             , css
-                [ width (Rpx.add Helper.Styles.cellWidth (blc 2))
+                [ displayFlex
+                , flexDirection column
+                , width (Rpx.add Helper.Styles.cellWidth (blc 2))
                 ]
             ]
             [ div
@@ -91,14 +101,33 @@ colorArea model =
                     ]
                 ]
                 [ Html.text label ]
-            , div
-                [ class "hex"
-                , css
-                    [ textBoxStyle
-                    , backgroundColor (convColor theme.bHigh)
+
+                
+            , input
+                (   [ class "hex"
+                    , type_ "text"
+                    , Attr.maxlength 7
+                    , onInput hexEditMsg
+
+                    , onBlur <| hexFocusMsg False
+                    , onFocus <| hexFocusMsg True
+
+                    , css
+                        [ --- housecleaning
+                        border zero
+
+                        --- real styles
+                        , textBoxStyle
+                        , Helper.Styles.defaultFonts
+                        , backgroundColor (convColor theme.bHigh)
+                        , color (convColor theme.fHigh)
+                        ]
                     ]
-                ]
-                [ Html.text <| colorToHex colorPrev ]
+                    ++ maybeHexVal
+                )
+                []
+
+
             , div
                 [ class "preview"
                 , css
@@ -175,7 +204,7 @@ hslSliders model colorEditMsg =
         ]
 
     
-slider : Model -> ColorEditMsg msg -> String -> EditType -> Int -> Int -> Html msg
+slider : Model -> ColorEditMsg msg -> String -> ValueEditType -> Int -> Int -> Html msg
 slider model colorEditMsg labelStr editType minVal maxVal =
     div
         [ class "sliderArea"

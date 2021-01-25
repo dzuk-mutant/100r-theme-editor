@@ -1,17 +1,19 @@
 module Helper.Color exposing ( convColor
 
-                        , getCurrentColor
-                        , changeCurrentColor
+                        , getSelectedColor
+                        , getNewSelectedColor
+                        , changeSelectedColor
 
                         , getColorValue
                         , editColorValue
+                        , editColorHex
                         )
 
 import Color exposing (Color)
 import Color.Convert
 import Css
 import HRTheme exposing (HRTheme)
-import Model exposing (Model, SelectedColor(..), EditType(..))
+import Model exposing (Model, SelectedColor(..), ValueEditType(..))
 
 {-| Converts avh4's elm-color
 to elm-css's Color type.
@@ -23,10 +25,11 @@ convColor colorData =
     |> Css.hex
 
 
+
 {-| Returns a colour from the currently selected color.
 -}
-getCurrentColor : Model -> Color.Color
-getCurrentColor model =
+getSelectedColor : Model -> Color.Color
+getSelectedColor model =
     case model.selectedColor of
         Background -> model.theme.background
         FHigh -> model.theme.fHigh
@@ -39,11 +42,27 @@ getCurrentColor model =
         BInv -> model.theme.bInv
 
 
+{-| Returns a color from a newly selected colour
+(ie. one that would be in an update function case)
+-}
+getNewSelectedColor : SelectedColor -> HRTheme -> Color.Color
+getNewSelectedColor selCol theme =
+    case selCol of
+        Background -> theme.background
+        FHigh -> theme.fHigh
+        FMed -> theme.fMed
+        FLow -> theme.fLow
+        FInv -> theme.fInv
+        BHigh -> theme.bHigh
+        BMed -> theme.bMed
+        BLow -> theme.bLow
+        BInv -> theme.bInv
+
 {-| Takes a colour and applies it to the current
 selected colour in the theme and returns the new theme.
 -}
-changeCurrentColor : Color.Color -> Model -> HRTheme
-changeCurrentColor color model =
+changeSelectedColor : Color.Color -> Model -> HRTheme
+changeSelectedColor color model =
     let
         c = color
         t = model.theme
@@ -64,7 +83,7 @@ changeCurrentColor color model =
 {-| Gets a specific value of the current colour with an
 EditType value.
 -}
-getColorValue : Model -> EditType -> String
+getColorValue : Model -> ValueEditType -> String
 getColorValue model editType =
     let
         getColorAspect : Color.Color -> Float
@@ -78,7 +97,7 @@ getColorValue model editType =
                 Lightness ->  c |> Color.toHsla |> .lightness |> (*) 100
     in
         model
-        |> getCurrentColor
+        |> getSelectedColor
         |> getColorAspect
         |> round
         |> String.fromInt
@@ -88,10 +107,10 @@ getColorValue model editType =
 color value, an edit type and existing colour
 and returns a modified colour based on the first 2 arguments.
 -}
-editColorValue : String -> EditType -> Model -> Color
+editColorValue : String -> ValueEditType -> Model -> Color
 editColorValue channelString editType model =
     let
-        color = getCurrentColor model
+        color = getSelectedColor model
         rgb = Color.toRgba color
         hsl = Color.toHsla color
         
@@ -148,3 +167,23 @@ editColorValue channelString editType model =
         |> clampChannel -- clamp to prevent user error.
         |> prepareChannel -- fit it between 0 and 1.
         |> packChannel -- mix into a new color.
+
+
+{-| Performs the colour transformations necessary for previewing what the 
+-}
+editColorHex : String -> Model -> Color
+editColorHex hex model =
+    let
+        color = getSelectedColor model
+
+        hashed = case String.left 1 hex == "#" of
+            True -> hex
+            False -> "#" ++ hex
+
+        -- if the new color isn't good, keep the old one
+        newColor = hashed
+            |> Color.Convert.hexToColor
+            |> Result.toMaybe
+            |> Maybe.withDefault color
+    in
+        newColor
