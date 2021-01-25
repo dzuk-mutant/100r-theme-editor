@@ -1,7 +1,6 @@
 module Section.File exposing (view)
 
 import Css exposing (..)
-import FilePrev exposing (svgFilePreview)
 import Model exposing (Model)
 import Helper.Color exposing (convColor)
 import Helper.Styles exposing (cellWidth)
@@ -78,7 +77,7 @@ view model importMsg exportMsg =
                     , height (rpx 64)
                     ]
                 ]
-                [ svgFilePreview model.theme ]
+                [ Html.fromUnstyled <| HRTheme.toSvgImage model.theme ]
 
             -------------- BUTTONS
             , div
