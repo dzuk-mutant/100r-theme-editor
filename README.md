@@ -6,7 +6,6 @@ Create and edit [Hundred Rabbits themes](https://github.com/hundredrabbits/Theme
 
 [**Click here to use the editor.**](https://dzuk-mutant.github.io/100r-theme-editor/)
 
-**This app is currently unfinished, there's more to do, but it works enough at the moment that I wanted to make it available for other people.**
 
 ## Instructions
 
@@ -27,7 +26,7 @@ There are two components to testing a Hundred Rabbits theme:
 
 #### Basic Tests
 
-The way colours work in Hundred Rabbits themes is that the high, medium and low foreground and background colours should be contrasted against the background in order - `f_high` be more contrasting against the background than `f_med`, and so on.
+The way colours work in Hundred Rabbits themes is that the high, medium and low colours should be contrasted against the background in order - `f_high` be more contrasting against the background than `f_med`, and so on.
 
 The basic tests at the top will tell you if the contrast should be swapped (and arrows will appear on the colour buttons indicating as well). If they're all good, it will say 'passed!'.
 
