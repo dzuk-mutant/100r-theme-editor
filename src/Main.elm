@@ -3,11 +3,12 @@ module Main exposing (main)
 import Browser
 import Color
 import Color.Convert exposing (colorToHex)
+import ColorMixer exposing (ColorMixer, EditActivity(..))
 import Css exposing (..)
 import File exposing (File)
 import File.Select as Select
 import File.Download as Download
-import Helper.Color exposing (convColor, editColorValue, editColorHex, editHSLSliders, editOneHSlSlider)
+import Helper.Color exposing (convColor)
 import Html
 import Html.Styled exposing (Attribute, div)
 import Html.Styled.Attributes exposing (css)
@@ -16,7 +17,7 @@ import HRTheme exposing (HRTheme)
 import Json.Decode as JD
 import Task
 import Tests
-import Model exposing (Model, SelectedColor(..), ColorMode(..), ValueEditType(..))
+import Model exposing (Model, SelectedColor(..), ColorMode(..))
 import Section.File
 import Section.Preview
 import Section.Mixer
@@ -69,10 +70,9 @@ init _ =
 
         , selectedColor = Background
         , colorEditMode = HSL
-
         , hexInputFocused = False
-        , hexInputValue = colorToHex defaultTheme.background
-        , hslSliders = editHSLSliders defaultTheme.background
+
+        , mixer = ColorMixer.fromColor defaultTheme.background
         }
     , Cmd.none
     )
@@ -94,7 +94,7 @@ type Msg
   | SelectedColorChanged SelectedColor
 
   | ColorModeChanged ColorMode 
-  | ColorValueEdited ValueEditType String
+  | ColorMixerEdited ColorMixer.EditActivity
 
   | ColorHexEdited String
   | ColorHexFocusChanged Bool
@@ -145,11 +145,7 @@ update msg model =
         in
             ( { model | theme = newTheme
                       , tests = Tests.fromTheme newTheme
-
-                      {- Get the same selected color, but from a new theme.
-                      -}
-                      , hexInputValue = Color.Convert.colorToHex <| newSelectedCol
-                      , hslSliders = editHSLSliders <| newSelectedCol
+                      , mixer = ColorMixer.fromColor newSelectedCol
               }
             , Cmd.none
             )
@@ -161,12 +157,7 @@ update msg model =
             newSelectedCol = Helper.Color.getNewSelectedColor sc model.theme
         in
             ( { model | selectedColor = sc 
-                        
-                        {-  the hex input has to be updated with the new selected color at this time.
-                            the rest will change immediately automatically, but this won't.
-                        -}
-                    , hexInputValue = colorToHex newSelectedCol
-                    , hslSliders = editHSLSliders newSelectedCol
+                      , mixer = ColorMixer.fromColor newSelectedCol
             }
             , Cmd.none
             )
@@ -179,18 +170,14 @@ update msg model =
         , Cmd.none
         )       
 
-    ColorValueEdited editType val ->
+    ColorMixerEdited editAction ->
         let
-            newColor = editColorValue val editType model
-            newTheme = Helper.Color.changeSelectedColor newColor model
+            newMixer = ColorMixer.edit editAction model.mixer
+            newTheme = Helper.Color.changeSelectedColor newMixer.color model
         in
             ( { model | theme = newTheme
                       , tests = Tests.fromTheme newTheme
-
-                      {- Update the hex input value wth the new value.
-                      -}
-                      , hexInputValue = Color.Convert.colorToHex <| newColor
-                      , hslSliders = editOneHSlSlider model val editType newColor
+                      , mixer = newMixer
               }
             , Cmd.none
             )
@@ -199,32 +186,28 @@ update msg model =
 
     
     ColorHexFocusChanged b ->
-        let
-            newColor = editColorHex model.hexInputValue model
-        in
-            case b of 
-                True -> ( { model | hexInputFocused = b }, Cmd.none)
-
-                {-  when focusing away, we need to straighten the
-                    user input out by making it conform to valid hex input.
-                -}
-                False -> ( { model | hexInputFocused = b
-                                    , hexInputValue = colorToHex newColor
-                                    , hslSliders = editHSLSliders newColor
+        if b then
+            ( { model | hexInputFocused = b }, Cmd.none)
+        else
+            let
+                newMixer = ColorMixer.edit HexSaved model.mixer
+                newTheme = Helper.Color.changeSelectedColor newMixer.color model
+            in
+                ( { model | theme = newTheme
+                        , tests = Tests.fromTheme newTheme
+                        , mixer = newMixer 
                         }
-                        , Cmd.none
-                        )
+                , Cmd.none
+                )
 
     ColorHexEdited hex ->
         let
-            newColor = Helper.Color.editColorHex hex model
-            newTheme = Helper.Color.changeSelectedColor newColor model
+            newMixer = ColorMixer.edit (HexEdited hex) model.mixer
+            newTheme = Helper.Color.changeSelectedColor newMixer.color model
         in
             ( { model | theme = newTheme
                       , tests = Tests.fromTheme newTheme
-
-                      -- while editing, make the hex what the user is typing
-                      , hexInputValue = hex 
+                      , mixer = newMixer 
               }
             , Cmd.none
             )
@@ -287,7 +270,7 @@ mainView model =
                 , divider model.theme
                 , Section.Mixer.view model
                     ColorModeChanged
-                    ColorValueEdited
+                    ColorMixerEdited
                     ColorHexEdited
                     ColorHexFocusChanged
                 ]
