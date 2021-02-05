@@ -39,7 +39,16 @@ import Color exposing (Color)
 import Color.Convert exposing (colorToHex)
 
 
-{-| A type representing 
+{-| A type representing a color mixer in a user interface.
+
+- `color` : The current color being worked on.
+- `red` : The value for the red slider in RGB controls.
+- `green` : The value for the green slider in RGB controls.
+- `blue` : The value for the blue slider in RGB controls.
+- `hue` : The value for the hue slider in HSL controls.
+- `saturation` : The value for the saturation slider in HSL controls.
+- `lightness` : The value for the lightness slider in HSL controls.
+- `hex` : The value for the hex text input.
 -}
 type alias ColorMixer =
     { color : Color
@@ -72,7 +81,7 @@ the text input.
 When a Hex value representing this colour
 is being edited right now.
 
-### HexSaved
+### HexDone
 Setting a hex's input is different to editing
 based on hex input because we can't be sure
 if the user is correct or not until they're
@@ -91,7 +100,7 @@ type EditActivity
     | RGBEdited RGBEdit
     | HSLEdited HSLEdit
     | HexEdited String
-    | HexSaved
+    | HexDone
 
 type RGBEdit
     = Red Float
@@ -136,7 +145,7 @@ edit activity mixer =
         RGBEdited r -> rgbEdit r mixer
         HSLEdited h -> hslEdit h mixer
         HexEdited x -> hexEdit x mixer
-        HexSaved -> hexSet mixer
+        HexDone -> hexSet mixer
 
 
 {-| Takes an String representing a Int-based color

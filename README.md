@@ -6,8 +6,9 @@ Create and edit [Hundred Rabbits themes](https://github.com/hundredrabbits/Theme
 
 [**Click here to use the editor.**](https://dzuk-mutant.github.io/100r-theme-editor/)
 
+---
 
-## Instructions
+# Instructions
 
 - Drag and drop themes into the window (or click the import button)
 to view and edit them.
@@ -20,17 +21,17 @@ to view and edit them.
 - Click the download button to download your new theme.
 
 
-### Testing
+## Testing
 
 There are two components to testing a Hundred Rabbits theme:
 
-#### Basic Tests
+### Basic Tests
 
 The way colours work in Hundred Rabbits themes is that the high, medium and low colours should be contrasted against the background in order - `f_high` be more contrasting against the background than `f_med`, and so on.
 
 The basic tests at the top will tell you if the contrast should be swapped (and arrows will appear on the colour buttons indicating as well). If they're all good, it will say 'passed!'.
 
-#### Contrast
+### Contrast
 
 Each colour combination in the preview grid has a number and a grade attached. The number is a score showing how contrasted the colour combination is, and the grade tells you what WCAG guidelines it passes.
 
@@ -45,7 +46,7 @@ There are no real wrong answers with contrast accessibility when it comes to mak
 
 ---
 
-## Accessibility
+# Accessibility
 
 - This has not been built with screenreaders in mind, I will look into it in the future if people ask for it.
 - All measurements are in rems, so it will scale with text size.
@@ -53,21 +54,23 @@ There are no real wrong answers with contrast accessibility when it comes to mak
 
 ---
 
-## Building
+# Building
 
 Building requires the following:
 
 - Elm 0.19.1 (can be installed via `npm install elm`)
 - terser (can be installed via `npm install terser`)
 
-Building the web app involves the `make all` command.
+To build all of it, run `make all`.
 
 An internet connection is required for the initial build, but
 the app will work offline once built.
 
 ---
 
-## License
+# Licenses and acknowledgments
 
-- This software is licensed NPL v5.
+- This software is licensed [NPL v5](LICENSE).
+    - The license is marked differently in `elm.json` because currently the Elm compiler will not compile if there isn't an OSI-approved license there.
 - JetBrains Mono is licensed OFL 1.1.
+- The default theme for the app is Hundred Rabbit's [noir theme](https://github.com/hundredrabbits/Themes/blob/master/themes/noir.svg).

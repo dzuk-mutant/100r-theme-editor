@@ -1,6 +1,5 @@
 module Helper.Color exposing ( convColor
 
-                            , getSelectedColor
                             , getNewSelectedColor
                             , changeSelectedColor
                             )
@@ -20,22 +19,6 @@ convColor colorData =
     |> Color.Convert.colorToHex
     |> Css.hex
 
-
-
-{-| Returns a colour from the currently selected color.
--}
-getSelectedColor : Model -> Color.Color
-getSelectedColor model =
-    case model.selectedColor of
-        Background -> model.theme.background
-        FHigh -> model.theme.fHigh
-        FMed -> model.theme.fMed
-        FLow -> model.theme.fLow
-        FInv -> model.theme.fInv
-        BHigh -> model.theme.bHigh
-        BMed -> model.theme.bMed
-        BLow -> model.theme.bLow
-        BInv -> model.theme.bInv
 
 
 {-| Returns a color from a newly selected colour

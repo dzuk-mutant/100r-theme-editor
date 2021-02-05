@@ -168,7 +168,7 @@ update msg model =
             ( { model | hexInputFocused = b }, Cmd.none)
         else
             let
-                newMixer = ColorMixer.edit HexSaved model.mixer
+                newMixer = ColorMixer.edit HexDone model.mixer
                 newTheme = changeSelectedColor newMixer.color model
             in
                 ( { model | theme = newTheme

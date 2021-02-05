@@ -1,6 +1,6 @@
 module Section.Mixer exposing (view)
 
-import Helper.Color exposing (convColor, getSelectedColor)
+import Helper.Color exposing (convColor)
 import Helper.Styles
 import ColorMixer exposing (ColorMixer, EditActivity(..), RGBEdit(..), HSLEdit(..))
 import Css exposing (..)
@@ -75,7 +75,7 @@ colorArea model editMsg hexFocusMsg =
                 BLow -> "b_low"
                 BInv -> "b_inv"
         
-        colorPrev = getSelectedColor model
+        colorPrev = model.mixer.color
     in
         div
             [ class "preview"
@@ -177,9 +177,9 @@ rgbSliders model editMsg =
     div
         [ css [ marginTop (blc 2) ]
         ]
-        [ slider model editMsg "R" (\c -> RGBEdited <| Red c) 0 255 .red
-        , slider model editMsg "G" (\c -> RGBEdited <| Green c) 0 255 .green
-        , slider model editMsg "B" (\c -> RGBEdited <| Blue c) 0 255 .blue
+        [ slider model editMsg "R" (RGBEdited << Red) 0 255 .red
+        , slider model editMsg "G" (RGBEdited << Green) 0 255 .green
+        , slider model editMsg "B" (RGBEdited << Blue) 0 255 .blue
         ]
 
 
@@ -188,9 +188,9 @@ hslSliders model editMsg =
     div
         [ css [ marginTop (blc 2) ]
         ]
-        [ slider model editMsg "H" (\c -> HSLEdited <| Hue c) 0 360 .hue
-        , slider model editMsg "S" (\c -> HSLEdited <| Saturation c) 0 100 .saturation
-        , slider model editMsg "L" (\c -> HSLEdited <| Lightness c) 0 100 .lightness
+        [ slider model editMsg "H" (HSLEdited << Hue) 0 360 .hue
+        , slider model editMsg "S" (HSLEdited << Saturation) 0 100 .saturation
+        , slider model editMsg "L" (HSLEdited << Lightness) 0 100 .lightness
         ]
 
     
