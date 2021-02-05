@@ -13,11 +13,10 @@ import Rpx exposing (blc, rpx)
 
 type alias EditMsg msg = EditActivity -> msg
 type alias ColorModeMsg msg = ColorMode -> msg
-type alias HexEdit msg = String -> msg
 type alias HexFocus msg = Bool -> msg
 
-view : Model ->  ColorModeMsg msg -> EditMsg msg -> HexEdit msg -> HexFocus msg -> Html msg
-view model colorModeMsg editMsg hexEditMsg hexFocusMsg =
+view : Model ->  ColorModeMsg msg -> HexFocus msg -> EditMsg msg -> Html msg
+view model colorModeMsg hexFocusMsg editMsg  =
     div
         [ class "section-mixer"
         , css   
@@ -25,7 +24,7 @@ view model colorModeMsg editMsg hexEditMsg hexFocusMsg =
             , marginBottom (blc 4)
             ]
         ]
-        [ colorArea model hexEditMsg hexFocusMsg
+        [ colorArea model editMsg hexFocusMsg
 
         , div [ css [width (blc 1)]][]
 
@@ -60,8 +59,8 @@ view model colorModeMsg editMsg hexEditMsg hexFocusMsg =
         ]
 
 
-colorArea : Model -> HexEdit msg -> HexFocus msg -> Html msg
-colorArea model hexEditMsg hexFocusMsg =
+colorArea : Model -> EditMsg msg -> HexFocus msg -> Html msg
+colorArea model editMsg hexFocusMsg =
     let
         theme = model.theme
         label = 
@@ -99,7 +98,7 @@ colorArea model hexEditMsg hexFocusMsg =
                 [ class "hex"
                 , type_ "text"
                 , Attr.maxlength 7
-                , onInput hexEditMsg
+                , onInput <| editMsg << HexEdited
                 , value model.mixer.hex
 
                 , onBlur <| hexFocusMsg False
@@ -206,11 +205,10 @@ slider : Model
 slider model editMsg labelStr editType minVal maxVal currentValAcc =
     let
         currentVal = currentValAcc model.mixer
-        updateFunc str = 
-            str
-            |> ColorMixer.stringToVal minVal maxVal
-            |> editType
-            |> editMsg
+        updateFunc = 
+            ColorMixer.stringToVal minVal maxVal
+            >> editType
+            >> editMsg
 
         valStr = ColorMixer.valToString maxVal currentVal
         minStr = String.fromInt minVal

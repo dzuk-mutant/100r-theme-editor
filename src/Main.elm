@@ -8,7 +8,7 @@ import Css exposing (..)
 import File exposing (File)
 import File.Select as Select
 import File.Download as Download
-import Helper.Color exposing (convColor)
+import Helper.Color exposing (convColor, getNewSelectedColor, changeSelectedColor)
 import Html
 import Html.Styled exposing (Attribute, div)
 import Html.Styled.Attributes exposing (css)
@@ -83,21 +83,20 @@ init _ =
 
 
 type Msg
-  = Pick
+  = DragEnter
+  | DragLeave
+
+  | Pick
+  | GotFiles File (List File)
+  | ThemeLoaded String
   | Export 
 
-  | DragEnter
-  | DragLeave
-  | GotFiles File (List File)
-  
-  | ThemeLoaded String
   | SelectedColorChanged SelectedColor
-
+  | ColorHexFocusChanged Bool
   | ColorModeChanged ColorMode 
   | ColorMixerEdited ColorMixer.EditActivity
 
-  | ColorHexEdited String
-  | ColorHexFocusChanged Bool
+  
 
 
 
@@ -105,42 +104,38 @@ type Msg
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
+    {- As far as I understand (not very acquainted
+    with drag and drop atm), these are required to
+    make drag and drop work even if you have no
+    intention of using these.
+    -}
+    DragEnter -> ( model, Cmd.none )
+    DragLeave -> ( model, Cmd.none )
+
+
+    ----------------- IMPORT/EXPORT ----------------
+
     Pick ->
         ( model
         , Select.files ["image/svg+xml"] GotFiles
-        )
-
-    Export ->
-        ( model
-        , export model.theme
-        )
-
-    DragEnter ->
-        ( model
-        , Cmd.none
-        )
-
-    DragLeave ->
-        ( model
-        , Cmd.none
         )
 
     GotFiles file _ ->
         ( model
         , Task.perform ThemeLoaded (File.toString file)
         )
-    
-   
+
+    Export -> ( model, export model.theme )
 
     ThemeLoaded fileStr ->
         let
             newThemeAttempt = XD.run HRTheme.decoder fileStr
-            newTheme =
-                case newThemeAttempt of
+
+            newTheme = case newThemeAttempt of
                     Ok t -> t
                     Err _ -> model.theme 
 
-            newSelectedCol = Helper.Color.getNewSelectedColor model.selectedColor newTheme
+            newSelectedCol = getNewSelectedColor model.selectedColor newTheme
 
         in
             ( { model | theme = newTheme
@@ -151,47 +146,30 @@ update msg model =
             )
 
 
+    ----------------- EDITING ----------------
 
     SelectedColorChanged sc ->
         let
-            newSelectedCol = Helper.Color.getNewSelectedColor sc model.theme
+            newSelectedCol = getNewSelectedColor sc model.theme
         in
             ( { model | selectedColor = sc 
                       , mixer = ColorMixer.fromColor newSelectedCol
-            }
-            , Cmd.none
-            )
-        
-
-
-
-    ColorModeChanged cem ->
-        ( { model | colorEditMode = cem }
-        , Cmd.none
-        )       
-
-    ColorMixerEdited editAction ->
-        let
-            newMixer = ColorMixer.edit editAction model.mixer
-            newTheme = Helper.Color.changeSelectedColor newMixer.color model
-        in
-            ( { model | theme = newTheme
-                      , tests = Tests.fromTheme newTheme
-                      , mixer = newMixer
               }
             , Cmd.none
             )
 
 
-
+    ColorModeChanged cem ->
+        ( { model | colorEditMode = cem } , Cmd.none )
     
+
     ColorHexFocusChanged b ->
         if b then
             ( { model | hexInputFocused = b }, Cmd.none)
         else
             let
                 newMixer = ColorMixer.edit HexSaved model.mixer
-                newTheme = Helper.Color.changeSelectedColor newMixer.color model
+                newTheme = changeSelectedColor newMixer.color model
             in
                 ( { model | theme = newTheme
                         , tests = Tests.fromTheme newTheme
@@ -200,14 +178,15 @@ update msg model =
                 , Cmd.none
                 )
 
-    ColorHexEdited hex ->
+
+    ColorMixerEdited editAction ->
         let
-            newMixer = ColorMixer.edit (HexEdited hex) model.mixer
-            newTheme = Helper.Color.changeSelectedColor newMixer.color model
+            newMixer = ColorMixer.edit editAction model.mixer
+            newTheme = changeSelectedColor newMixer.color model
         in
             ( { model | theme = newTheme
                       , tests = Tests.fromTheme newTheme
-                      , mixer = newMixer 
+                      , mixer = newMixer
               }
             , Cmd.none
             )
@@ -270,9 +249,9 @@ mainView model =
                 , divider model.theme
                 , Section.Mixer.view model
                     ColorModeChanged
-                    ColorMixerEdited
-                    ColorHexEdited
                     ColorHexFocusChanged
+                    ColorMixerEdited
+                    
                 ]
             ]
         )

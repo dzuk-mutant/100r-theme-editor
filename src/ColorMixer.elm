@@ -144,9 +144,9 @@ value with a min anx max bounds and turns it into a
 Float that's between 0 and 1 so it can be updated
 to a ColorMixer.
 
-    onInput << RGBEdit << Blue << (ColorMixer.stringToVal 0 255)
+    onInput <| RGBEdit << Blue << (ColorMixer.stringToVal 0 255)
 
-If the number given is higher than the max bounds
+If the input number is higher than the max bounds
 you've given, then this function will clamp it.
 
 If the number conversion fails, the value will be 0.
