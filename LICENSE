@@ -1,33 +1,32 @@
 Hundred Rabbits theme editor
 Copyright Dzuk 2021
 
-COOPERATIVE NON-VIOLENT PUBLIC LICENSE v5
+NON-VIOLENT PUBLIC LICENSE v5
 
 Preamble
 
-The Cooperative Non-Violent Public license is a freedom-respecting sharealike
-license for both the author of a work as well as those subject to a work.
-It aims to protect the basic rights of human beings from exploitation,
-the earth from plunder, and the equal treatment of the workers involved in the
-creation of the work. It aims to ensure a copyrighted work is forever
-available for public use, modification, and redistribution under the same
-terms so long as the work is not used for harm. For more information about
-the CNPL refer to the official webpage
+The Non-Violent Public license is a freedom-respecting sharealike license
+for both the author of a work as well as those subject to a work. It aims
+to protect the basic rights of human beings from exploitation and the earth
+from plunder. It aims to ensure a copyrighted work is forever available
+for public use, modification, and redistribution under the same terms so
+long as the work is not used for harm. For more information about the NPL
+refer to the official webpage
 
 Official Webpage: https://thufie.lain.haus/NPL.html
 
 Terms and Conditions
 
 THE WORK (AS DEFINED BELOW) IS PROVIDED UNDER THE TERMS OF THIS
-COOPERATIVE NON-VIOLENT PUBLIC LICENSE v5 ("LICENSE"). THE WORK IS
-PROTECTED BY COPYRIGHT AND ALL OTHER APPLICABLE LAWS. ANY USE OF THE
-WORK OTHER THAN AS AUTHORIZED UNDER THIS LICENSE OR COPYRIGHT LAW IS
-PROHIBITED. BY EXERCISING ANY RIGHTS TO THE WORK PROVIDED IN THIS
-LICENSE, YOU AGREE TO BE BOUND BY THE TERMS OF THIS LICENSE.
-TO THE EXTENT THIS LICENSE MAY BE CONSIDERED TO BE A CONTRACT,
-THE LICENSOR GRANTS YOU THE RIGHTS CONTAINED HERE IN AS CONSIDERATION
-FOR ACCEPTING THE TERMS AND CONDITIONS OF THIS LICENSE AND FOR AGREEING
-TO BE BOUND BY THE TERMS AND CONDITIONS OF THIS LICENSE.
+NON-VIOLENT PUBLIC LICENSE v5 ("LICENSE"). THE WORK IS PROTECTED BY
+COPYRIGHT AND ALL OTHER APPLICABLE LAWS. ANY USE OF THE WORK OTHER THAN
+AS AUTHORIZED UNDER THIS LICENSE OR COPYRIGHT LAW IS PROHIBITED. BY
+EXERCISING ANY RIGHTS TO THE WORK PROVIDED IN THIS LICENSE, YOU AGREE
+TO BE BOUND BY THE TERMS OF THIS LICENSE. TO THE EXTENT THIS LICENSE
+MAY BE CONSIDERED TO BE A CONTRACT, THE LICENSOR GRANTS YOU THE RIGHTS
+CONTAINED HERE IN AS CONSIDERATION FOR ACCEPTING THE TERMS AND
+CONDITIONS OF THIS LICENSE AND FOR AGREEING TO BE BOUND BY THE TERMS
+AND CONDITIONS OF THIS LICENSE.
 
 1. DEFINITIONS
 
@@ -206,8 +205,7 @@ TO BE BOUND BY THE TERMS AND CONDITIONS OF THIS LICENSE.
           to make such modifications as are technically necessary to
           exercise the rights in other media and formats. Subject to
           Section 8(g), all rights not expressly granted by Licensor are
-          hereby reserved, including but not limited to the rights set
-          forth in Section 4(i).
+          hereby reserved.
 
 4. RESTRICTIONS
 
@@ -234,58 +232,25 @@ TO BE BOUND BY THE TERMS AND CONDITIONS OF THIS LICENSE.
           made subject to the terms of this License. If You create a
           Collection, upon notice from any Licensor You must, to the
           extent practicable, remove from the Collection any credit as
-          required by Section 4(h), as requested. If You create an
+          required by Section 4(f), as requested. If You create an
           Adaptation, upon notice from any Licensor You must, to the
           extent practicable, remove from the Adaptation any credit as
-          required by Section 4(h), as requested.
+          required by Section 4(f), as requested.
 
-          b. Subject to the exception in Section 4(e), you may not
-          exercise any of the rights granted to You in Section 3 above in
-          any manner that is primarily intended for or directed toward
-          commercial advantage or private monetary compensation. The
-          exchange of the Work for other copyrighted works by means of
-          digital file-sharing or otherwise shall not be considered to be
-          intended for or directed toward commercial advantage or private
-          monetary compensation, provided there is no payment of any
-          monetary compensation in connection with the exchange of
-          copyrighted works.
-
-          c. If the Work meets the definition of Software, You may exercise
+          b. If the Work meets the definition of Software, You may exercise
           the rights granted in Section 3 only if You provide a copy of the
           corresponding Source Code from which the Work was derived in digital
           form, or You provide a URI for the corresponding Source Code of
           the Work, to any recipients upon request.
 
-          d. If the Work is used as or for a Network Service, You may exercise
+          c. If the Work is used as or for a Network Service, You may exercise
           the rights granted in Section 3 only if You provide a copy of the
           corresponding Source Code from which the Work was derived in digital
           form, or You provide a URI for the corresponding Source Code to the
           Work, to any recipients of the data served or modified by the Web
           Service.
 
-          e. You may exercise the rights granted in Section 3 for
-          commercial purposes only if:
-
-                i. You are a worker-owned business or worker-owned
-                collective; and
-                ii.  after tax, all financial gain, surplus, profits and
-                benefits produced by the business or collective are
-                distributed among the worker-owners unless a set amount
-                is to be allocated towards community projects as decided
-                by a previously-established consensus agreement between the
-                worker-owners where all worker-owners agreed
-                iii. You are not using such rights on behalf of a business
-                other than those specified in 4(e.i) and elaborated upon in
-                4(e.ii), nor are using such rights as a proxy on behalf of a
-                business with the intent to circumvent the aforementioned
-                restrictions on such a business.
-
-          f. Any use by a business that is privately owned and managed,
-          and that seeks to generate profit from the labor of employees
-          paid by salary or other wages, is not permitted under this
-          license.
-
-          g. You may exercise the rights granted in Section 3 for
+          d. You may exercise the rights granted in Section 3 for
           any purposes only if:
 
               i. You do not use the Work for the purpose of inflicting
@@ -311,7 +276,7 @@ TO BE BOUND BY THE TERMS AND CONDITIONS OF THIS LICENSE.
               gender identity, race, age, disability, color, national origin,
               religion, or lower economic status.
 
-          h. If You Distribute, or Publicly Perform the Work or any
+          e. If You Distribute, or Publicly Perform the Work or any
           Adaptations or Collections, You must, unless a request has been
           made pursuant to Section 4(a), keep intact all copyright notices
           for the Work and provide, reasonable to the medium or means You
@@ -323,13 +288,13 @@ TO BE BOUND BY THE TERMS AND CONDITIONS OF THIS LICENSE.
           service or by other reasonable means, the name of such party or
           parties; (ii) the title of the Work if supplied; (iii) to the
           extent reasonably practicable, the URI, if any, that Licensor
-           to be associated with the Work, unless such URI does
+          specifies to be associated with the Work, unless such URI does
           not refer to the copyright notice or licensing information for
           the Work; and, (iv) consistent with Section 3(b), in the case of
           an Adaptation, a credit identifying the use of the Work in the
           Adaptation (e.g., "French translation of the Work by Original
           Author," or "Screenplay based on original Work by Original
-          Author"). The credit required by this Section 4(h) may be
+          Author"). The credit required by this Section 4(e) may be
           implemented in any reasonable manner; provided, however, that in
           the case of an Adaptation or Collection, at a minimum such credit
           will appear, if a credit for all contributing authors of the
@@ -345,35 +310,7 @@ TO BE BOUND BY THE TERMS AND CONDITIONS OF THIS LICENSE.
           separate, express prior written permission of the Original
           Author, Licensor and/or Attribution Parties.
 
-          i. For the avoidance of doubt:
-
-                i. Non-waivable Compulsory License Schemes. In those
-                jurisdictions in which the right to collect royalties
-                through any statutory or compulsory licensing scheme
-                cannot be waived, the Licensor reserves the exclusive
-                right to collect such royalties for any exercise by You of
-                the rights granted under this License;
-
-                ii. Waivable Compulsory License Schemes. In those
-                jurisdictions in which the right to collect royalties
-                through any statutory or compulsory licensing scheme can
-                be waived, the Licensor reserves the exclusive right to
-                collect such royalties for any exercise by You of the
-                rights granted under this License if Your exercise of such
-                rights is for a purpose or use which is otherwise than
-                noncommercial as permitted under Section 4(b) and
-                otherwise waives the right to collect royalties through
-                any statutory or compulsory licensing scheme; and,
-                iii.Voluntary License Schemes. The Licensor reserves the
-                right to collect royalties, whether individually or, in
-                the event that the Licensor is a member of a collecting
-                society that administers voluntary licensing schemes, via
-                that society, from any exercise by You of the rights
-                granted under this License that is for a purpose or use
-                which is otherwise than noncommercial as permitted under
-                Section 4(b).
-
-          j. Except as otherwise agreed in writing by the Licensor or as
+          f. Except as otherwise agreed in writing by the Licensor or as
           may be otherwise permitted by applicable law, if You Reproduce,
           Distribute or Publicly Perform the Work either by itself or as
           part of any Adaptations or Collections, You must not distort,
@@ -390,7 +327,7 @@ TO BE BOUND BY THE TERMS AND CONDITIONS OF THIS LICENSE.
           exercise Your right under Section 3(b) of this License (right to
           make Adaptations) but not otherwise.
 
-          k. Do not make any legal claim against anyone accusing the
+          g. Do not make any legal claim against anyone accusing the
           Work, with or without changes, alone or with other works,
           of infringing any patent claim.
 

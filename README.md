@@ -69,5 +69,5 @@ the app will work offline once built.
 
 ## License
 
-- This software is licensed CNPL v5.
+- This software is licensed NPL v5.
 - JetBrains Mono is licensed OFL 1.1.
