@@ -2,12 +2,12 @@ module Main exposing (main)
 
 import Browser
 import Color
-import Color.Convert
+import Color.Convert exposing (colorToHex)
 import Css exposing (..)
 import File exposing (File)
 import File.Select as Select
 import File.Download as Download
-import Helper.Color exposing (convColor, editColorValue)
+import Helper.Color exposing (convColor, editColorValue, editColorHex, editHSLSliders, editOneHSlSlider)
 import Html
 import Html.Styled exposing (Attribute, div)
 import Html.Styled.Attributes exposing (css)
@@ -71,7 +71,8 @@ init _ =
         , colorEditMode = HSL
 
         , hexInputFocused = False
-        , hexInputValue = Color.Convert.colorToHex defaultTheme.background
+        , hexInputValue = colorToHex defaultTheme.background
+        , hslSliders = editHSLSliders defaultTheme.background
         }
     , Cmd.none
     )
@@ -139,13 +140,16 @@ update msg model =
                     Ok t -> t
                     Err _ -> model.theme 
 
+            newSelectedCol = Helper.Color.getNewSelectedColor model.selectedColor newTheme
+
         in
             ( { model | theme = newTheme
                       , tests = Tests.fromTheme newTheme
 
-                      {-    Get the same selected color, but from a new theme.
+                      {- Get the same selected color, but from a new theme.
                       -}
-                      , hexInputValue = Color.Convert.colorToHex <| Helper.Color.getNewSelectedColor model.selectedColor newTheme
+                      , hexInputValue = Color.Convert.colorToHex <| newSelectedCol
+                      , hslSliders = editHSLSliders <| newSelectedCol
               }
             , Cmd.none
             )
@@ -153,16 +157,20 @@ update msg model =
 
 
     SelectedColorChanged sc ->
-        ( { model | selectedColor = sc 
-                    
-                    {-  the hex input has to be updated with the new selected color at this time.
-                        the rest will change immediately automatically, but this won't.
-                    -}
-                  , hexInputValue = Color.Convert.colorToHex <| Helper.Color.getNewSelectedColor sc model.theme
-          }
-          , Cmd.none
-        )
-    
+        let
+            newSelectedCol = Helper.Color.getNewSelectedColor sc model.theme
+        in
+            ( { model | selectedColor = sc 
+                        
+                        {-  the hex input has to be updated with the new selected color at this time.
+                            the rest will change immediately automatically, but this won't.
+                        -}
+                    , hexInputValue = colorToHex newSelectedCol
+                    , hslSliders = editHSLSliders newSelectedCol
+            }
+            , Cmd.none
+            )
+        
 
 
 
@@ -181,7 +189,8 @@ update msg model =
 
                       {- Update the hex input value wth the new value.
                       -}
-                      , hexInputValue = Color.Convert.colorToHex <| Helper.Color.getNewSelectedColor model.selectedColor newTheme
+                      , hexInputValue = Color.Convert.colorToHex <| newColor
+                      , hslSliders = editOneHSlSlider model val editType newColor
               }
             , Cmd.none
             )
@@ -190,17 +199,21 @@ update msg model =
 
     
     ColorHexFocusChanged b ->
-        case b of 
-            True -> ( { model | hexInputFocused = b }, Cmd.none)
+        let
+            newColor = editColorHex model.hexInputValue model
+        in
+            case b of 
+                True -> ( { model | hexInputFocused = b }, Cmd.none)
 
-            {-  when focusing away, we need to straighten the
-                user input out by making it conform to valid hex input.
-            -}
-            False -> ( { model | hexInputFocused = b
-                               , hexInputValue = Color.Convert.colorToHex <| Helper.Color.editColorHex model.hexInputValue model
-                       }
-                     , Cmd.none
-                     )
+                {-  when focusing away, we need to straighten the
+                    user input out by making it conform to valid hex input.
+                -}
+                False -> ( { model | hexInputFocused = b
+                                    , hexInputValue = colorToHex newColor
+                                    , hslSliders = editHSLSliders newColor
+                        }
+                        , Cmd.none
+                        )
 
     ColorHexEdited hex ->
         let

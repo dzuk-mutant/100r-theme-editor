@@ -47,9 +47,7 @@ There are no real wrong answers with contrast accessibility when it comes to mak
 
 ## Known bugs
 
-The HSL sliders don't really work as you would expect right now, this is for a specific known reason that I would like to address soon.
-
-If you want to use the HSL sliders right now, keep in mind that the Hue slider will not function properly if the saturation is at the bottom or the lightness slider is close to it's maximum or minimum. Also the Hue slider currently has a tendency to wrap around itself if you whack it right to the end.
+The HSL sliders now work but get interpreted back into the main color in a slightly off way compared to other forms of input.
 
 ---
 

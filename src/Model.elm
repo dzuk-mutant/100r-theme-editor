@@ -2,6 +2,7 @@ module Model exposing (Model
                       , SelectedColor(..)
                       , ColorMode(..)
                       , ValueEditType(..)
+                      , HSLSliders
                       )
 
 import HRTheme exposing (HRTheme)
@@ -16,8 +17,8 @@ type alias Model =
 
     , hexInputValue : String
     , hexInputFocused : Bool
+    , hslSliders : HSLSliders
     }
-
 
 
 type SelectedColor
@@ -42,3 +43,15 @@ type ValueEditType
     | Hue
     | Saturation
     | Lightness
+
+{-| We need separate modelling for the HSL sliders
+because they function differently to RGB.
+
+RGB sliders can essentially be stored in the theme
+colors, because they are discrete and independent.
+-}
+type alias HSLSliders =
+    { hue : Int
+    , saturation : Int
+    , lightness : Int
+    }

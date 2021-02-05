@@ -7,13 +7,16 @@ module Helper.Color exposing ( convColor
                         , getColorValue
                         , editColorValue
                         , editColorHex
+
+                        , editHSLSliders
+                        , editOneHSlSlider
                         )
 
 import Color exposing (Color)
 import Color.Convert
 import Css
 import HRTheme exposing (HRTheme)
-import Model exposing (Model, SelectedColor(..), ValueEditType(..))
+import Model exposing (Model, SelectedColor(..), ValueEditType(..), HSLSliders)
 
 {-| Converts avh4's elm-color
 to elm-css's Color type.
@@ -83,7 +86,7 @@ changeSelectedColor color model =
 {-| Gets a specific value of the current colour with an
 EditType value.
 -}
-getColorValue : Model -> ValueEditType -> String
+getColorValue : Model -> ValueEditType -> Int
 getColorValue model editType =
     let
         getColorAspect : Color.Color -> Float
@@ -100,7 +103,6 @@ getColorValue model editType =
         |> getSelectedColor
         |> getColorAspect
         |> round
-        |> String.fromInt
 
 
 {-| Takes a string representing a particular
@@ -112,7 +114,11 @@ editColorValue valueString editType model =
     let
         color = getSelectedColor model
         rgb = Color.toRgba color
-        hsl = Color.toHsla color
+        hsl = model.hslSliders
+
+        hue = toFloat hsl.hue / 360
+        saturation = toFloat hsl.saturation / 100
+        lightness = toFloat hsl.lightness / 100
         
         
         {- it's important that they are clamped because the value
@@ -128,6 +134,7 @@ editColorValue valueString editType model =
                 Red -> clamp 0 255 c
                 Green -> clamp 0 255 c
                 Blue -> clamp 0 255 c
+
                 Hue -> clamp 0 360 c
                 Saturation -> clamp 0 100 c
                 Lightness -> clamp 0 100 c
@@ -141,6 +148,7 @@ editColorValue valueString editType model =
                 Red -> c / 255
                 Green -> c / 255
                 Blue -> c / 255
+
                 Hue -> c / 360
                 Saturation -> c / 100
                 Lightness -> c / 100
@@ -155,9 +163,12 @@ editColorValue valueString editType model =
                 Red -> Color.rgb c rgb.green rgb.blue
                 Green -> Color.rgb rgb.red c rgb.blue
                 Blue -> Color.rgb rgb.red rgb.green c
-                Hue -> Color.hsl c hsl.saturation hsl.lightness
-                Saturation -> Color.hsl hsl.hue c hsl.lightness
-                Lightness -> Color.hsl hsl.hue hsl.saturation c
+
+                -- HSL operations have to look to the sliders
+                -- rather than the conversions from the color.
+                Hue -> Color.hsl c saturation lightness
+                Saturation -> Color.hsl hue c lightness
+                Lightness -> Color.hsl hue saturation c
 
     in
         valueString
@@ -192,3 +203,28 @@ editColorHex hex model =
             |> Maybe.withDefault color
     in
         newColor
+
+{-| For when the HSL sliders need to be edited by action coming from other types of value editing.
+-}
+editHSLSliders : Color -> HSLSliders
+editHSLSliders color =
+    let
+        hsl = Color.toHsla color
+    in
+        { hue = round <| hsl.hue * 360 
+        , saturation = round <| hsl.saturation * 100
+        , lightness = round <| hsl.lightness * 100
+        }
+
+{-| Changes the HSL sliders based on what kinds of values are being edited.
+-}
+editOneHSlSlider : Model -> String -> ValueEditType -> Color -> HSLSliders
+editOneHSlSlider model newValStr editType fallbackColor =
+    let
+        val = Maybe.withDefault 0 <| String.toInt newValStr
+    in
+        case editType of
+            Hue -> { hue = val, saturation = model.hslSliders.saturation, lightness = model.hslSliders.lightness }
+            Saturation -> { hue = model.hslSliders.hue, saturation = val, lightness = model.hslSliders.lightness }
+            Lightness -> { hue = model.hslSliders.hue, saturation = model.hslSliders.saturation, lightness = val }
+            _ ->  editHSLSliders fallbackColor

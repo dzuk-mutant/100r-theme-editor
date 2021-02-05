@@ -182,28 +182,38 @@ colorModeButton model msg colorMode label =
 
 rgbSliders : Model -> ColorEditMsg msg -> Html msg
 rgbSliders model colorEditMsg =
-    div
-        [ css [ marginTop (blc 2) ]
-        ]
-        [ slider model colorEditMsg "R" Red 0 255
-        , slider model colorEditMsg "G" Green 0 255
-        , slider model colorEditMsg "B" Blue 0 255
-        ]
+    let
+        redVal = getColorValue model Red
+        greenVal = getColorValue model Green
+        blueVal = getColorValue model Blue
+    in
+        div
+            [ css [ marginTop (blc 2) ]
+            ]
+            [ slider model colorEditMsg "R" Red 0 255 redVal
+            , slider model colorEditMsg "G" Green 0 255 greenVal
+            , slider model colorEditMsg "B" Blue 0 255 blueVal
+            ]
 
 
 hslSliders : Model -> ColorEditMsg msg -> Html msg
 hslSliders model colorEditMsg =
-    div
-        [ css [ marginTop (blc 2) ]
-        ]
-        [ slider model colorEditMsg "H" Hue 0 360 
-        , slider model colorEditMsg "S" Saturation 0 100
-        , slider model colorEditMsg "L" Lightness 0 100
-        ]
+    let
+        hueVal = model.hslSliders.hue
+        satVal = model.hslSliders.saturation
+        liteVal = model.hslSliders.lightness
+    in
+        div
+            [ css [ marginTop (blc 2) ]
+            ]
+            [ slider model colorEditMsg "H" Hue 0 360 hueVal
+            , slider model colorEditMsg "S" Saturation 0 100 satVal
+            , slider model colorEditMsg "L" Lightness 0 100 liteVal
+            ]
 
     
-slider : Model -> ColorEditMsg msg -> String -> ValueEditType -> Int -> Int -> Html msg
-slider model colorEditMsg labelStr editType minVal maxVal =
+slider : Model -> ColorEditMsg msg -> String -> ValueEditType -> Int -> Int -> Int -> Html msg
+slider model colorEditMsg labelStr editType minVal maxVal currentVal =
     div
         [ class "sliderArea"
         , css
@@ -236,7 +246,7 @@ slider model colorEditMsg labelStr editType minVal maxVal =
             , Attr.min <| String.fromInt minVal
             , Attr.max <| String.fromInt maxVal
             , onInput (colorEditMsg editType)
-            , value <| getColorValue model editType
+            , value <| String.fromInt currentVal
 
             , css
                 [ ------ housecleaning styles
@@ -269,7 +279,7 @@ slider model colorEditMsg labelStr editType minVal maxVal =
             [ class "text"
             , type_ "number"
             , onInput (colorEditMsg editType)
-            , value <| getColorValue model editType
+            , value <| String.fromInt currentVal
             , Attr.min <| String.fromInt minVal
             , Attr.max <| String.fromInt maxVal
             , step "1"
@@ -287,7 +297,7 @@ slider model colorEditMsg labelStr editType minVal maxVal =
                 , backgroundColor (convColor model.theme.bHigh)
                 ]
             ]
-            [Html.text <| getColorValue model editType]
+            [Html.text <| String.fromInt currentVal]
         ]
         
 
