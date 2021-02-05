@@ -73,4 +73,4 @@ the app will work offline once built.
 - This software is licensed [NPL v5](LICENSE).
     - The license is marked differently in `elm.json` because currently the Elm compiler will not compile if there isn't an OSI-approved license there.
 - JetBrains Mono is licensed OFL 1.1.
-- The default theme for the app is Hundred Rabbit's [noir theme](https://github.com/hundredrabbits/Themes/blob/master/themes/noir.svg).
+- The default theme for the app is Hundred Rabbits' [noir theme](https://github.com/hundredrabbits/Themes/blob/master/themes/noir.svg).

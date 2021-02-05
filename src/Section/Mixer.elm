@@ -1,10 +1,11 @@
 module Section.Mixer exposing (view)
 
 import Helper.Color exposing (convColor)
-import Helper.Styles
+import Helper.Styles exposing (cellWidth)
+import Helper.Layout as Layout
 import ColorMixer exposing (ColorMixer, EditActivity(..), RGBEdit(..), HSLEdit(..))
 import Css exposing (..)
-import Html.Styled as Html exposing (Html, Attribute, button, div, input, label)
+import Html.Styled as Html exposing (Html, div, input, label)
 import Html.Styled.Attributes as Attr exposing (class, css, type_, value, step)
 import Html.Styled.Events exposing (onClick, onInput, onFocus, onBlur)
 import Model exposing (Model, SelectedColor(..), ColorMode(..))
@@ -31,8 +32,7 @@ view model colorModeMsg hexFocusMsg editMsg  =
         , div
             [ class "slider-area"
             , css
-                [ width (blc <| (18*3) + (2*3))
-                ]
+                [ width (blc <| (18*3) + (2*3)) ]
             ]
             [ div
                 [ class "color-values"
@@ -42,14 +42,12 @@ view model colorModeMsg hexFocusMsg editMsg  =
                     ]
                 ]
                 [ div
-                    [ class "colorMode"
-                    ]
+                    [ class "colorMode" ]
                     [ colorModeButton model colorModeMsg HSL "HSL"
                     , colorModeButton model colorModeMsg RGB "RGB"
                     ]
                 , div
-                    [ class "sliderArea"
-                    ]
+                    [ class "sliderArea" ]
                     [ case model.colorEditMode of
                         HSL -> hslSliders model editMsg
                         RGB -> rgbSliders model editMsg
@@ -138,38 +136,12 @@ colorArea model editMsg hexFocusMsg =
 
 colorModeButton : Model -> ColorModeMsg msg -> ColorMode -> String -> Html msg
 colorModeButton model msg colorMode label =
-    button
-        [ css
-            [ Helper.Styles.buttonStyles
-
-            , minWidth <| Rpx.add Helper.Styles.cellWidth (blc 2)
-            , height (blc 5)
-            , padding (blc 1)
-
-            , border zero
-            , fontWeight (int 600)
-            , Helper.Styles.defaultFonts
-
-            , Css.batch (
-                case model.colorEditMode == colorMode of
-                    True ->
-                        [ backgroundColor (convColor model.theme.bLow)
-                        , color (convColor model.theme.fMed)
-                        ]
-                    False ->
-                        [ backgroundColor unset
-                        , color (convColor model.theme.fLow)
-                        ]
-                )
-
-            , textAlign left
-
-            , boxSizing borderBox
-            ]
-            
-        , onClick <| msg colorMode
-        ]
-        [ Html.text label ]
+    Layout.cellButton
+        model.theme
+        ( model.colorEditMode == colorMode )
+        [ onClick <| msg colorMode ]
+        [ ]
+        label
 
 
 rgbSliders : Model -> EditMsg msg -> Html msg

@@ -3,8 +3,9 @@ module Section.Preview exposing (view)
 import Css exposing (..)
 import Color exposing (Color)
 import Helper.Color exposing (convColor)
-import Helper.Styles exposing (buttonStyles, cellWidth)
-import Html.Styled as Html exposing (Html, button, div, span)
+import Helper.Styles exposing (cellWidth)
+import Helper.Layout as Layout
+import Html.Styled as Html exposing (Html, div, span)
 import Html.Styled.Attributes exposing (css, class)
 import Html.Styled.Events exposing (onClick)
 import Model exposing (Model, SelectedColor(..))
@@ -187,36 +188,12 @@ blankCell content =
 
 paletteButton : Model -> String -> (SelectedColor -> msg) -> SelectedColor -> String -> Html msg
 paletteButton model label msg thisColor endStr =
-    button
-        [ css
-            [ buttonStyles
-
-            , minWidth <| Rpx.add cellWidth (blc 2)
-            , height (blc 5)
-            , padding (blc 1)
-
-            , Helper.Styles.defaultFonts
-
-            , Css.batch (
-                case model.selectedColor == thisColor of
-                    True ->
-                        [ backgroundColor (convColor model.theme.bLow)
-                        , color (convColor model.theme.fMed)
-                        ]
-                    False ->
-                        [ backgroundColor unset
-                        , color (convColor model.theme.fLow)
-                        ]
-                )
-
-            , textAlign left
-
-            , boxSizing borderBox
-            ]
-            
-        , onClick <| msg thisColor
-        ]
-        [ Html.text <| label ++ " " ++ endStr ]
+    Layout.cellButton
+        model.theme
+        ( model.selectedColor == thisColor )
+        [ onClick <| msg thisColor ]
+        [ ]
+        ( label ++ " " ++ endStr )
         
 
 
