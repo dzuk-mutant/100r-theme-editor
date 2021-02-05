@@ -1,23 +1,22 @@
 module Section.Mixer exposing (view)
 
-import Helper.Color exposing (convColor, getColorValue, getSelectedColor)
+import Helper.Color exposing (convColor, getSelectedColor)
 import Helper.Styles
+import ColorMixer exposing (ColorMixer, EditActivity(..), RGBEdit(..), HSLEdit(..))
 import Css exposing (..)
 import Html.Styled as Html exposing (Html, Attribute, button, div, input, label)
 import Html.Styled.Attributes as Attr exposing (class, css, type_, value, step)
 import Html.Styled.Events exposing (onClick, onInput, onFocus, onBlur)
-import Model exposing (Model, SelectedColor(..), ColorMode(..), ValueEditType(..))
+import Model exposing (Model, SelectedColor(..), ColorMode(..))
 import Rpx exposing (blc, rpx)
 
 
-
-type alias ColorEditMsg msg = ValueEditType -> String -> msg
+type alias EditMsg msg = EditActivity -> msg
 type alias ColorModeMsg msg = ColorMode -> msg
-type alias HexEdit msg = String -> msg
 type alias HexFocus msg = Bool -> msg
 
-view : Model ->  ColorModeMsg msg -> ColorEditMsg msg -> HexEdit msg -> HexFocus msg -> Html msg
-view model colorModeMsg colorEditMsg hexEditMsg hexFocusMsg =
+view : Model ->  ColorModeMsg msg -> HexFocus msg -> EditMsg msg -> Html msg
+view model colorModeMsg hexFocusMsg editMsg  =
     div
         [ class "section-mixer"
         , css   
@@ -25,7 +24,7 @@ view model colorModeMsg colorEditMsg hexEditMsg hexFocusMsg =
             , marginBottom (blc 4)
             ]
         ]
-        [ colorArea model hexEditMsg hexFocusMsg
+        [ colorArea model editMsg hexFocusMsg
 
         , div [ css [width (blc 1)]][]
 
@@ -52,16 +51,16 @@ view model colorModeMsg colorEditMsg hexEditMsg hexFocusMsg =
                     [ class "sliderArea"
                     ]
                     [ case model.colorEditMode of
-                        HSL -> hslSliders model colorEditMsg
-                        RGB -> rgbSliders model colorEditMsg
+                        HSL -> hslSliders model editMsg
+                        RGB -> rgbSliders model editMsg
                     ]
                 ]
             ]
         ]
 
 
-colorArea : Model -> HexEdit msg -> HexFocus msg -> Html msg
-colorArea model hexEditMsg hexFocusMsg =
+colorArea : Model -> EditMsg msg -> HexFocus msg -> Html msg
+colorArea model editMsg hexFocusMsg =
     let
         theme = model.theme
         label = 
@@ -77,12 +76,6 @@ colorArea model hexEditMsg hexFocusMsg =
                 BInv -> "b_inv"
         
         colorPrev = getSelectedColor model
-
-        maybeHexVal : List (Attribute msg)
-        maybeHexVal =
-            case model.hexInputFocused of
-                False -> [ value <| model.hexInputValue ]
-                True -> [ value <| model.hexInputValue ]
     in
         div
             [ class "preview"
@@ -102,27 +95,26 @@ colorArea model hexEditMsg hexFocusMsg =
 
                 
             , input
-                (   [ class "hex"
-                    , type_ "text"
-                    , Attr.maxlength 7
-                    , onInput hexEditMsg
+                [ class "hex"
+                , type_ "text"
+                , Attr.maxlength 7
+                , onInput <| editMsg << HexEdited
+                , value model.mixer.hex
 
-                    , onBlur <| hexFocusMsg False
-                    , onFocus <| hexFocusMsg True
+                , onBlur <| hexFocusMsg False
+                , onFocus <| hexFocusMsg True
 
-                    , css
-                        [ --- housecleaning
-                        border zero
+                , css
+                    [ --- housecleaning
+                    border zero
 
-                        --- real styles
-                        , textBoxStyle
-                        , Helper.Styles.defaultFonts
-                        , backgroundColor (convColor theme.bHigh)
-                        , color (convColor theme.fHigh)
-                        ]
+                    --- real styles
+                    , textBoxStyle
+                    , Helper.Styles.defaultFonts
+                    , backgroundColor (convColor theme.bHigh)
+                    , color (convColor theme.fHigh)
                     ]
-                    ++ maybeHexVal
-                )
+                ]
                 []
 
 
@@ -180,126 +172,134 @@ colorModeButton model msg colorMode label =
         [ Html.text label ]
 
 
-rgbSliders : Model -> ColorEditMsg msg -> Html msg
-rgbSliders model colorEditMsg =
-    let
-        redVal = getColorValue model Red
-        greenVal = getColorValue model Green
-        blueVal = getColorValue model Blue
-    in
-        div
-            [ css [ marginTop (blc 2) ]
-            ]
-            [ slider model colorEditMsg "R" Red 0 255 redVal
-            , slider model colorEditMsg "G" Green 0 255 greenVal
-            , slider model colorEditMsg "B" Blue 0 255 blueVal
-            ]
+rgbSliders : Model -> EditMsg msg -> Html msg
+rgbSliders model editMsg =
+    div
+        [ css [ marginTop (blc 2) ]
+        ]
+        [ slider model editMsg "R" (\c -> RGBEdited <| Red c) 0 255 .red
+        , slider model editMsg "G" (\c -> RGBEdited <| Green c) 0 255 .green
+        , slider model editMsg "B" (\c -> RGBEdited <| Blue c) 0 255 .blue
+        ]
 
 
-hslSliders : Model -> ColorEditMsg msg -> Html msg
-hslSliders model colorEditMsg =
-    let
-        hueVal = model.hslSliders.hue
-        satVal = model.hslSliders.saturation
-        liteVal = model.hslSliders.lightness
-    in
-        div
-            [ css [ marginTop (blc 2) ]
-            ]
-            [ slider model colorEditMsg "H" Hue 0 360 hueVal
-            , slider model colorEditMsg "S" Saturation 0 100 satVal
-            , slider model colorEditMsg "L" Lightness 0 100 liteVal
-            ]
+hslSliders : Model -> EditMsg msg -> Html msg
+hslSliders model editMsg =
+    div
+        [ css [ marginTop (blc 2) ]
+        ]
+        [ slider model editMsg "H" (\c -> HSLEdited <| Hue c) 0 360 .hue
+        , slider model editMsg "S" (\c -> HSLEdited <| Saturation c) 0 100 .saturation
+        , slider model editMsg "L" (\c -> HSLEdited <| Lightness c) 0 100 .lightness
+        ]
 
     
-slider : Model -> ColorEditMsg msg -> String -> ValueEditType -> Int -> Int -> Int -> Html msg
-slider model colorEditMsg labelStr editType minVal maxVal currentVal =
-    div
-        [ class "sliderArea"
-        , css
-            [ displayFlex
-            , flexDirection row
-            , alignItems center
-            , height (blc 4)
-            , marginTop (blc 1)
-            ]
+slider : Model 
+    -> EditMsg msg
+    -> String
+    -> (Float -> EditActivity)
+    -> Int
+    -> Int
+    -> (ColorMixer -> Float)
+    -> Html msg
+slider model editMsg labelStr editType minVal maxVal currentValAcc =
+    let
+        currentVal = currentValAcc model.mixer
+        updateFunc = 
+            ColorMixer.stringToVal minVal maxVal
+            >> editType
+            >> editMsg
 
-        ]
-        [ label
-            []
-            []
-
-        ----------- LABEL
-        , div
-            [ css
-                [ textBoxStyle
-                , width (blc 2)
-                , color (convColor model.theme.fMed)
+        valStr = ColorMixer.valToString maxVal currentVal
+        minStr = String.fromInt minVal
+        maxStr = String.fromInt maxVal
+    in
+        div
+            [ class "sliderArea"
+            , css
+                [ displayFlex
+                , flexDirection row
+                , alignItems center
+                , height (blc 4)
+                , marginTop (blc 1)
                 ]
 
             ]
-            [Html.text labelStr]
-        
-        ----------- THE ACTUAL SLIDER
-        , input
-            [ type_ "range"
-            , Attr.min <| String.fromInt minVal
-            , Attr.max <| String.fromInt maxVal
-            , onInput (colorEditMsg editType)
-            , value <| String.fromInt currentVal
+            [ label
+                []
+                []
 
-            , css
-                [ ------ housecleaning styles
-                  sliderHousecleaningStyles
-                 
-                ------- real styles
-                , sliderThumb
-                    [ width (blc 2)
-                    , height (blc 2)
-                    , marginTop (blc -1) -- specifying a margin is mandatory in Chrome
+            ----------- LABEL
+            , div
+                [ css
+                    [ textBoxStyle
+                    , width (blc 2)
+                    , color (convColor model.theme.fMed)
+                    ]
+
+                ]
+                [Html.text labelStr]
+            
+            ----------- THE ACTUAL SLIDER
+            , input
+                [ type_ "range"
+                , Attr.min minStr
+                , Attr.max maxStr
+                , onInput updateFunc
+                , value valStr
+
+                , css
+                    [ ------ housecleaning styles
+                    sliderHousecleaningStyles
                     
-                    , cursor pointer
+                    ------- real styles
+                    , sliderThumb
+                        [ width (blc 2)
+                        , height (blc 2)
+                        , marginTop (blc -1) -- specifying a margin is mandatory in Chrome
+                        
+                        , cursor pointer
 
-                    , border3 (rpx 2) solid (convColor model.theme.background) 
-                    , borderRadius <| Rpx.add (blc 1) (rpx 2)
-                    , backgroundColor (convColor model.theme.fLow)
-                    ]
+                        , border3 (rpx 2) solid (convColor model.theme.background) 
+                        , borderRadius <| Rpx.add (blc 1) (rpx 2)
+                        , backgroundColor (convColor model.theme.fLow)
+                        ]
 
-                , sliderTrack
-                    [ height (rpx 2)
-                    , color (convColor model.theme.fLow)
-                    , backgroundColor (convColor model.theme.bMed)
+                    , sliderTrack
+                        [ height (rpx 2)
+                        , color (convColor model.theme.fLow)
+                        , backgroundColor (convColor model.theme.bMed)
+                        ]
                     ]
                 ]
-            ]
-            []
+                []
 
-        ----------- TEXT BOX
-        , input
-            [ class "text"
-            , type_ "number"
-            , onInput (colorEditMsg editType)
-            , value <| String.fromInt currentVal
-            , Attr.min <| String.fromInt minVal
-            , Attr.max <| String.fromInt maxVal
-            , step "1"
+            ----------- TEXT BOX
+            , input
+                [ class "text"
+                , type_ "number"
+                , onInput updateFunc
+                , value valStr
+                , Attr.min minStr
+                , Attr.max maxStr
+                , step "1"
 
-            , css
-                [ ---- housecleaning
-                  numberHousecleaningStyles
+                , css
+                    [ ---- housecleaning
+                    numberHousecleaningStyles
 
-                ---- normal styles    
-                , textBoxStyle
-                , Helper.Styles.defaultFonts
-                , color (convColor model.theme.fHigh)
-                , width (blc 5)
-                , marginLeft (blc 2)
-                , backgroundColor (convColor model.theme.bHigh)
+                    ---- normal styles    
+                    , textBoxStyle
+                    , Helper.Styles.defaultFonts
+                    , color (convColor model.theme.fHigh)
+                    , width (blc 5)
+                    , marginLeft (blc 2)
+                    , backgroundColor (convColor model.theme.bHigh)
+                    ]
                 ]
+                [Html.text valStr]
             ]
-            [Html.text <| String.fromInt currentVal]
-        ]
-        
+            
 
 textBoxStyle : Style
 textBoxStyle =

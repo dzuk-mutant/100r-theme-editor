@@ -3,11 +3,12 @@ module Main exposing (main)
 import Browser
 import Color
 import Color.Convert exposing (colorToHex)
+import ColorMixer exposing (ColorMixer, EditActivity(..))
 import Css exposing (..)
 import File exposing (File)
 import File.Select as Select
 import File.Download as Download
-import Helper.Color exposing (convColor, editColorValue, editColorHex, editHSLSliders, editOneHSlSlider)
+import Helper.Color exposing (convColor, getNewSelectedColor, changeSelectedColor)
 import Html
 import Html.Styled exposing (Attribute, div)
 import Html.Styled.Attributes exposing (css)
@@ -16,7 +17,7 @@ import HRTheme exposing (HRTheme)
 import Json.Decode as JD
 import Task
 import Tests
-import Model exposing (Model, SelectedColor(..), ColorMode(..), ValueEditType(..))
+import Model exposing (Model, SelectedColor(..), ColorMode(..))
 import Section.File
 import Section.Preview
 import Section.Mixer
@@ -69,10 +70,9 @@ init _ =
 
         , selectedColor = Background
         , colorEditMode = HSL
-
         , hexInputFocused = False
-        , hexInputValue = colorToHex defaultTheme.background
-        , hslSliders = editHSLSliders defaultTheme.background
+
+        , mixer = ColorMixer.fromColor defaultTheme.background
         }
     , Cmd.none
     )
@@ -83,21 +83,20 @@ init _ =
 
 
 type Msg
-  = Pick
+  = DragEnter
+  | DragLeave
+
+  | Pick
+  | GotFiles File (List File)
+  | ThemeLoaded String
   | Export 
 
-  | DragEnter
-  | DragLeave
-  | GotFiles File (List File)
-  
-  | ThemeLoaded String
   | SelectedColorChanged SelectedColor
-
-  | ColorModeChanged ColorMode 
-  | ColorValueEdited ValueEditType String
-
-  | ColorHexEdited String
   | ColorHexFocusChanged Bool
+  | ColorModeChanged ColorMode 
+  | ColorMixerEdited ColorMixer.EditActivity
+
+  
 
 
 
@@ -105,126 +104,89 @@ type Msg
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
+    {- As far as I understand (not very acquainted
+    with drag and drop atm), these are required to
+    make drag and drop work even if you have no
+    intention of using these.
+    -}
+    DragEnter -> ( model, Cmd.none )
+    DragLeave -> ( model, Cmd.none )
+
+
+    ----------------- IMPORT/EXPORT ----------------
+
     Pick ->
         ( model
         , Select.files ["image/svg+xml"] GotFiles
-        )
-
-    Export ->
-        ( model
-        , export model.theme
-        )
-
-    DragEnter ->
-        ( model
-        , Cmd.none
-        )
-
-    DragLeave ->
-        ( model
-        , Cmd.none
         )
 
     GotFiles file _ ->
         ( model
         , Task.perform ThemeLoaded (File.toString file)
         )
-    
-   
+
+    Export -> ( model, export model.theme )
 
     ThemeLoaded fileStr ->
         let
             newThemeAttempt = XD.run HRTheme.decoder fileStr
-            newTheme =
-                case newThemeAttempt of
+
+            newTheme = case newThemeAttempt of
                     Ok t -> t
                     Err _ -> model.theme 
 
-            newSelectedCol = Helper.Color.getNewSelectedColor model.selectedColor newTheme
+            newSelectedCol = getNewSelectedColor model.selectedColor newTheme
 
         in
             ( { model | theme = newTheme
                       , tests = Tests.fromTheme newTheme
-
-                      {- Get the same selected color, but from a new theme.
-                      -}
-                      , hexInputValue = Color.Convert.colorToHex <| newSelectedCol
-                      , hslSliders = editHSLSliders <| newSelectedCol
+                      , mixer = ColorMixer.fromColor newSelectedCol
               }
             , Cmd.none
             )
 
 
+    ----------------- EDITING ----------------
 
     SelectedColorChanged sc ->
         let
-            newSelectedCol = Helper.Color.getNewSelectedColor sc model.theme
+            newSelectedCol = getNewSelectedColor sc model.theme
         in
             ( { model | selectedColor = sc 
-                        
-                        {-  the hex input has to be updated with the new selected color at this time.
-                            the rest will change immediately automatically, but this won't.
-                        -}
-                    , hexInputValue = colorToHex newSelectedCol
-                    , hslSliders = editHSLSliders newSelectedCol
-            }
-            , Cmd.none
-            )
-        
-
-
-
-    ColorModeChanged cem ->
-        ( { model | colorEditMode = cem }
-        , Cmd.none
-        )       
-
-    ColorValueEdited editType val ->
-        let
-            newColor = editColorValue val editType model
-            newTheme = Helper.Color.changeSelectedColor newColor model
-        in
-            ( { model | theme = newTheme
-                      , tests = Tests.fromTheme newTheme
-
-                      {- Update the hex input value wth the new value.
-                      -}
-                      , hexInputValue = Color.Convert.colorToHex <| newColor
-                      , hslSliders = editOneHSlSlider model val editType newColor
+                      , mixer = ColorMixer.fromColor newSelectedCol
               }
             , Cmd.none
             )
 
 
-
+    ColorModeChanged cem ->
+        ( { model | colorEditMode = cem } , Cmd.none )
     
+
     ColorHexFocusChanged b ->
-        let
-            newColor = editColorHex model.hexInputValue model
-        in
-            case b of 
-                True -> ( { model | hexInputFocused = b }, Cmd.none)
-
-                {-  when focusing away, we need to straighten the
-                    user input out by making it conform to valid hex input.
-                -}
-                False -> ( { model | hexInputFocused = b
-                                    , hexInputValue = colorToHex newColor
-                                    , hslSliders = editHSLSliders newColor
+        if b then
+            ( { model | hexInputFocused = b }, Cmd.none)
+        else
+            let
+                newMixer = ColorMixer.edit HexSaved model.mixer
+                newTheme = changeSelectedColor newMixer.color model
+            in
+                ( { model | theme = newTheme
+                        , tests = Tests.fromTheme newTheme
+                        , mixer = newMixer 
                         }
-                        , Cmd.none
-                        )
+                , Cmd.none
+                )
 
-    ColorHexEdited hex ->
+
+    ColorMixerEdited editAction ->
         let
-            newColor = Helper.Color.editColorHex hex model
-            newTheme = Helper.Color.changeSelectedColor newColor model
+            newMixer = ColorMixer.edit editAction model.mixer
+            newTheme = changeSelectedColor newMixer.color model
         in
             ( { model | theme = newTheme
                       , tests = Tests.fromTheme newTheme
-
-                      -- while editing, make the hex what the user is typing
-                      , hexInputValue = hex 
+                      , mixer = newMixer
               }
             , Cmd.none
             )
@@ -287,9 +249,9 @@ mainView model =
                 , divider model.theme
                 , Section.Mixer.view model
                     ColorModeChanged
-                    ColorValueEdited
-                    ColorHexEdited
                     ColorHexFocusChanged
+                    ColorMixerEdited
+                    
                 ]
             ]
         )

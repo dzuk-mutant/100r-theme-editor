@@ -20,7 +20,7 @@ elm-ghi:
 	elm make ./src/Main.elm --optimize --output=$(ghi_elm_out)
 	terser $(ghi_elm_out) --compress $(elm_compress) | terser --mangle --output $(ghi_elm_out)
 
-elm-debug:
+debug:
 	elm make ./src/Main.elm --output=$(client_elm_out)
 
 assets:

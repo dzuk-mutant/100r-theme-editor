@@ -1,5 +1,7 @@
 # Hundred Rabbits theme editor
 
+![](preview.png)
+
 Create and edit [Hundred Rabbits themes](https://github.com/hundredrabbits/Themes) using this simple web app.
 
 [**Click here to use the editor.**](https://dzuk-mutant.github.io/100r-theme-editor/)
@@ -41,13 +43,6 @@ Each colour combination in the preview grid has a number and a grade attached. T
 At the top of the theme, you'll see the overall 'theme contrast', this tells you the minimum contrast in your colour combinations.
 
 There are no real wrong answers with contrast accessibility when it comes to making themes for yourself - some people absolutely need things that are contrasted enough, but some people much prefer lower contrast. These scores are just a tool to help you make informed design choices.
-
-
----
-
-## Known bugs
-
-The HSL sliders now work but get interpreted back into the main color in a slightly off way compared to other forms of input.
 
 ---
 
