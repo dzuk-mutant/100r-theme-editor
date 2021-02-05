@@ -124,6 +124,7 @@ colorArea model editMsg hexFocusMsg =
 
                     , backgroundColor (convColor colorPrev)
 
+                    --
                     , Css.batch (
                         case model.selectedColor of
                             Background -> [ border3 (rpx 1) solid (convColor theme.bMed)]
