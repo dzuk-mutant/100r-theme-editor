@@ -6,7 +6,7 @@ import Helper.Styles exposing (cellWidth)
 import HRTheme exposing (HRTheme)
 import Html.Styled as Html exposing (Attribute, Html, button)
 import Html.Styled.Attributes exposing (css)
-import Rpx exposing (blc, rpx)
+import Rpx exposing (blc)
 
 
 cellButton : HRTheme -> Bool -> List (Attribute msg) -> List Style -> String -> Html msg

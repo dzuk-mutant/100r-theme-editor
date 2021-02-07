@@ -1,7 +1,7 @@
 module Section.Mixer exposing (view)
 
 import Helper.Color exposing (convColor)
-import Helper.Styles exposing (cellWidth)
+import Helper.Styles
 import Helper.Layout as Layout
 import ColorMixer exposing (ColorMixer, EditActivity(..), RGBEdit(..), HSLEdit(..))
 import Css exposing (..)

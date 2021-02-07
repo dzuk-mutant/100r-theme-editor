@@ -365,9 +365,11 @@ tryToEditHex newHexStr currentColor =
     let
         color = currentColor
 
-        hashed = case String.left 1 newHexStr == "#" of
-            True -> newHexStr
-            False -> "#" ++ newHexStr
+        hashed = 
+            if String.left 1 newHexStr == "#" then
+                newHexStr
+            else
+                "#" ++ newHexStr
 
         -- if the new color isn't good, keep the old one
         newColor = hashed

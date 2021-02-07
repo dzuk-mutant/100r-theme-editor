@@ -4,7 +4,7 @@ module Helper.Color exposing ( convColor
                             , changeSelectedColor
                             )
 
-import Color exposing (Color)
+import Color
 import Color.Convert
 import Css
 import HRTheme exposing (HRTheme)

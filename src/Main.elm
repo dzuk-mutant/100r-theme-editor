@@ -2,8 +2,8 @@ module Main exposing (main)
 
 import Browser
 import Color
-import Color.Convert exposing (colorToHex)
-import ColorMixer exposing (ColorMixer, EditActivity(..))
+import Color.Convert
+import ColorMixer exposing (EditActivity(..))
 import Css exposing (..)
 import File exposing (File)
 import File.Select as Select
